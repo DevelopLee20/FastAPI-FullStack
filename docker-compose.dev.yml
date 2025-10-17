@@ -1,0 +1,139 @@
+# 로컬 개발 환경용 Docker Compose 파일
+# 사용법: docker compose -f docker-compose.dev.yml --env-file .env.dev up --watch
+
+services:
+  # PostgreSQL 데이터베이스
+  db:
+    image: postgres:17
+    restart: "no"
+    ports:
+      - "5432:5432"  # 로컬에서 직접 접근 가능
+    volumes:
+      - dev-db-data:/var/lib/postgresql/data/pgdata
+    env_file:
+      - .env.dev
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+  # Adminer - 데이터베이스 관리 도구
+  adminer:
+    image: adminer
+    restart: "no"
+    ports:
+      - "8080:8080"  # http://localhost:8080
+    depends_on:
+      - db
+    env_file:
+      - .env.dev
+    environment:
+      - ADMINER_DESIGN=pepa-linha-dark
+
+  # 백엔드 사전 시작 스크립트 (마이그레이션 등)
+  prestart:
+    build:
+      context: ./backend
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+    command: bash scripts/prestart.sh
+    env_file:
+      - .env.dev
+    environment:
+      - POSTGRES_SERVER=db
+      - POSTGRES_PORT=5432
+
+  # FastAPI 백엔드
+  backend:
+    build:
+      context: ./backend
+    restart: "no"
+    ports:
+      - "8000:8000"  # http://localhost:8000
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+      prestart:
+        condition: service_completed_successfully
+    # 파일 변경 시 자동 재로드
+    command:
+      - fastapi
+      - run
+      - --reload
+      - app/main.py
+    # Docker Compose Watch로 실시간 동기화
+    develop:
+      watch:
+        - path: ./backend
+          action: sync
+          target: /app
+          ignore:
+            - ./backend/.venv
+            - .venv
+        - path: ./backend/pyproject.toml
+          action: rebuild
+    volumes:
+      # 테스트 커버리지 결과 확인용
+      - ./backend/htmlcov:/app/htmlcov
+    env_file:
+      - .env.dev
+    environment:
+      - POSTGRES_SERVER=db
+      - POSTGRES_PORT=5432
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/utils/health-check/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # React 프론트엔드
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        - VITE_API_URL=http://localhost:8000
+        - NODE_ENV=development
+    restart: "no"
+    ports:
+      - "5173:80"  # http://localhost:5173
+    depends_on:
+      - backend
+
+  # Playwright E2E 테스트 (선택적)
+  playwright:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.playwright
+      args:
+        - VITE_API_URL=http://backend:8000
+        - NODE_ENV=production
+    profiles:
+      - testing  # 'docker compose --profile testing up' 으로만 실행
+    ipc: host
+    depends_on:
+      - backend
+    env_file:
+      - .env.dev
+    environment:
+      - VITE_API_URL=http://backend:8000
+      - PLAYWRIGHT_HTML_HOST=0.0.0.0
+    volumes:
+      - ./frontend/blob-report:/app/blob-report
+      - ./frontend/test-results:/app/test-results
+    ports:
+      - "9323:9323"  # Playwright 리포트 서버
+
+volumes:
+  dev-db-data:
+    driver: local
+
+networks:
+  default:
+    name: fastapi-dev-network

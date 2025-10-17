@@ -1,0 +1,222 @@
+# 프로덕션 환경용 Docker Compose 파일 (Traefik 포함)
+# 사용법: docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
+
+services:
+  # Traefik 리버스 프록시 - HTTPS 자동 관리
+  traefik:
+    image: traefik:3.0
+    restart: always
+    ports:
+      - "80:80"     # HTTP
+      - "443:443"   # HTTPS
+    volumes:
+      # Docker 소켓 접근 (서비스 자동 감지)
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Let's Encrypt 인증서 저장
+      - traefik-certificates:/certificates
+    env_file:
+      - .env.prod
+    command:
+      # Docker 프로바이더 활성화
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+
+      # 엔트리포인트 설정
+      - --entrypoints.http.address=:80
+      - --entrypoints.https.address=:443
+
+      # Let's Encrypt 설정
+      - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL?Variable not set}
+      - --certificatesresolvers.letsencrypt.acme.storage=/certificates/acme.json
+      - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
+
+      # 로깅
+      - --accesslog=true
+      - --log.level=INFO
+
+      # 대시보드 활성화
+      - --api.dashboard=true
+    labels:
+      # Traefik 자체 활성화
+      - traefik.enable=true
+
+      # Traefik 대시보드 라우팅
+      - traefik.http.routers.traefik-dashboard.rule=Host(`traefik.${DOMAIN?Variable not set}`)
+      - traefik.http.routers.traefik-dashboard.entrypoints=https
+      - traefik.http.routers.traefik-dashboard.tls=true
+      - traefik.http.routers.traefik-dashboard.tls.certresolver=letsencrypt
+      - traefik.http.routers.traefik-dashboard.service=api@internal
+
+      # HTTP -> HTTPS 리다이렉트 미들웨어
+      - traefik.http.middlewares.https-redirect.redirectscheme.scheme=https
+      - traefik.http.middlewares.https-redirect.redirectscheme.permanent=true
+
+      # 대시보드 인증 (환경 변수로 설정)
+      - traefik.http.middlewares.traefik-auth.basicauth.users=${TRAEFIK_AUTH?Variable not set}
+      - traefik.http.routers.traefik-dashboard.middlewares=traefik-auth
+    networks:
+      - traefik-public
+
+  # PostgreSQL 데이터베이스
+  db:
+    image: postgres:17
+    restart: always
+    volumes:
+      - prod-db-data:/var/lib/postgresql/data/pgdata
+    env_file:
+      - .env.prod
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+    networks:
+      - default
+
+  # Adminer - 데이터베이스 관리 도구
+  adminer:
+    image: adminer
+    restart: always
+    depends_on:
+      - db
+    env_file:
+      - .env.prod
+    environment:
+      - ADMINER_DESIGN=pepa-linha-dark
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik-public
+
+      # HTTP 라우팅
+      - traefik.http.routers.adminer-http.rule=Host(`adminer.${DOMAIN?Variable not set}`)
+      - traefik.http.routers.adminer-http.entrypoints=http
+      - traefik.http.routers.adminer-http.middlewares=https-redirect
+
+      # HTTPS 라우팅
+      - traefik.http.routers.adminer-https.rule=Host(`adminer.${DOMAIN?Variable not set}`)
+      - traefik.http.routers.adminer-https.entrypoints=https
+      - traefik.http.routers.adminer-https.tls=true
+      - traefik.http.routers.adminer-https.tls.certresolver=letsencrypt
+
+      # 서비스 포트
+      - traefik.http.services.adminer.loadbalancer.server.port=8080
+    networks:
+      - traefik-public
+      - default
+
+  # 백엔드 사전 시작 스크립트 (마이그레이션 등)
+  prestart:
+    image: ${DOCKER_IMAGE_BACKEND?Variable not set}:${TAG:-latest}
+    build:
+      context: ./backend
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+    command: bash scripts/prestart.sh
+    env_file:
+      - .env.prod
+    environment:
+      - FRONTEND_HOST=https://dashboard.${DOMAIN}
+      - POSTGRES_SERVER=db
+      - POSTGRES_PORT=5432
+    networks:
+      - default
+
+  # FastAPI 백엔드
+  backend:
+    image: ${DOCKER_IMAGE_BACKEND?Variable not set}:${TAG:-latest}
+    build:
+      context: ./backend
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+      prestart:
+        condition: service_completed_successfully
+    env_file:
+      - .env.prod
+    environment:
+      - FRONTEND_HOST=https://dashboard.${DOMAIN}
+      - POSTGRES_SERVER=db
+      - POSTGRES_PORT=5432
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/utils/health-check/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik-public
+
+      # HTTP 라우팅
+      - traefik.http.routers.backend-http.rule=Host(`api.${DOMAIN?Variable not set}`)
+      - traefik.http.routers.backend-http.entrypoints=http
+      - traefik.http.routers.backend-http.middlewares=https-redirect
+
+      # HTTPS 라우팅
+      - traefik.http.routers.backend-https.rule=Host(`api.${DOMAIN?Variable not set}`)
+      - traefik.http.routers.backend-https.entrypoints=https
+      - traefik.http.routers.backend-https.tls=true
+      - traefik.http.routers.backend-https.tls.certresolver=letsencrypt
+
+      # 서비스 포트
+      - traefik.http.services.backend.loadbalancer.server.port=8000
+    networks:
+      - traefik-public
+      - default
+
+  # React 프론트엔드
+  frontend:
+    image: ${DOCKER_IMAGE_FRONTEND?Variable not set}:${TAG:-latest}
+    build:
+      context: ./frontend
+      args:
+        - VITE_API_URL=https://api.${DOMAIN?Variable not set}
+        - NODE_ENV=production
+    restart: always
+    env_file:
+      - .env.prod
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik-public
+
+      # HTTP 라우팅
+      - traefik.http.routers.frontend-http.rule=Host(`dashboard.${DOMAIN?Variable not set}`)
+      - traefik.http.routers.frontend-http.entrypoints=http
+      - traefik.http.routers.frontend-http.middlewares=https-redirect
+
+      # HTTPS 라우팅
+      - traefik.http.routers.frontend-https.rule=Host(`dashboard.${DOMAIN?Variable not set}`)
+      - traefik.http.routers.frontend-https.entrypoints=https
+      - traefik.http.routers.frontend-https.tls=true
+      - traefik.http.routers.frontend-https.tls.certresolver=letsencrypt
+
+      # 서비스 포트
+      - traefik.http.services.frontend.loadbalancer.server.port=80
+    networks:
+      - traefik-public
+
+volumes:
+  # 프로덕션 데이터베이스 데이터
+  prod-db-data:
+    driver: local
+
+  # Traefik 인증서 저장소
+  traefik-certificates:
+    driver: local
+
+networks:
+  # 외부 네트워크 (Traefik과 서비스 간)
+  traefik-public:
+    name: traefik-public
+    driver: bridge
+
+  # 내부 네트워크 (DB와 백엔드 간)
+  default:
+    name: fastapi-prod-internal
+    driver: bridge
