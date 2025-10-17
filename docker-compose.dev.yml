@@ -4,6 +4,7 @@
 services:
   # PostgreSQL 데이터베이스
   db:
+    container_name: ${PROJECT_NAME}-dev-db
     image: postgres:17
     restart: "no"
     ports:
@@ -23,6 +24,7 @@ services:
 
   # Adminer - 데이터베이스 관리 도구
   adminer:
+    container_name: ${PROJECT_NAME}-dev-adminer
     image: adminer
     restart: "no"
     ports:
@@ -36,6 +38,7 @@ services:
 
   # 백엔드 사전 시작 스크립트 (마이그레이션 등)
   prestart:
+    container_name: ${PROJECT_NAME}-dev-prestart
     build:
       context: ./backend
     depends_on:
@@ -51,6 +54,7 @@ services:
 
   # FastAPI 백엔드
   backend:
+    container_name: ${PROJECT_NAME}-dev-backend
     build:
       context: ./backend
     restart: "no"
@@ -95,6 +99,7 @@ services:
 
   # React 프론트엔드
   frontend:
+    container_name: ${PROJECT_NAME}-dev-frontend
     build:
       context: ./frontend
       args:
@@ -108,6 +113,7 @@ services:
 
   # Playwright E2E 테스트 (선택적)
   playwright:
+    container_name: ${PROJECT_NAME}-dev-playwright
     build:
       context: ./frontend
       dockerfile: Dockerfile.playwright
