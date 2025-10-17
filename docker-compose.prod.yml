@@ -5,7 +5,7 @@ services:
   # PostgreSQL 데이터베이스
   db:
     container_name: ${PROJECT_NAME}-prod-db
-    image: postgres:17
+    image: postgres:18
     restart: always
     volumes:
       - prod-db-data:/var/lib/postgresql/data/pgdata

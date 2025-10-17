@@ -5,7 +5,7 @@ services:
   # PostgreSQL 데이터베이스
   db:
     container_name: ${PROJECT_NAME}-dev-db
-    image: postgres:17
+    image: postgres:18
     restart: "no"
     ports:
       - "5432:5432"  # 로컬에서 직접 접근 가능
