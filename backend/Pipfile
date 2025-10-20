@@ -1,0 +1,33 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+# FastAPI & Server
+fastapi = "*"
+uvicorn = {extras = ["standard"], version = "*"}
+gunicorn = "*"
+sqlalchemy = "*"
+psycopg2-binary = "*"
+alembic = "*"
+redis = "*"
+python-dotenv = "*"
+pandas = "*"
+openpyxl = "*"
+xlrd = "*"
+pydantic-settings = "*"
+pytest = "*"
+httpx = "*"
+
+[dev-packages]
+pytest-cov = "*"
+pytest-asyncio = "*"
+black = "*"
+flake8 = "*"
+mypy = "*"
+ipython = "*"
+debugpy = "*"
+
+[requires]
+python_version = "3.12"

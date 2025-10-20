@@ -1,0 +1,194 @@
+services:
+  # PostgreSQL Database - Development
+  postgres:
+    image: postgres:15-alpine
+    container_name: ${PROJECT_NAME:-fastapi-fullstack}-postgres-dev
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgre_dev_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgre_dev_password_123}
+      POSTGRES_DB: ${POSTGRES_DB:-postgre_dev_db}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+      # 개발용 초기화 스크립트 (옵션)
+      # - ./backend/scripts/init-dev.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - nara-network-dev
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgre_dev_user} -d ${POSTGRES_DB:-postgre_dev_db}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # Redis Cache - Development
+  redis:
+    image: redis:7-alpine
+    container_name: ${PROJECT_NAME:-fastapi-fullstack}-redis-dev
+    command: redis-server --appendonly yes --loglevel notice
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_dev_data:/data
+    networks:
+      - nara-network-dev
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # FastAPI Backend - Development
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+      target: development
+    container_name: ${PROJECT_NAME:-fastapi-fullstack}-backend-dev
+    environment:
+      # Mode & Project Info
+      MODE: ${MODE:-dev}
+      PROJECT_NAME: ${PROJECT_NAME:-fastapi-fullstack}
+      APP_TITLE: ${APP_TITLE:-FullSTack API}
+      APP_DESCRIPTION: ${APP_DESCRIPTION:-풀스택 템플릿 API}
+      APP_VERSION: ${APP_VERSION:-1.0.0}
+      # PostgreSQL Database
+      POSTGRES_USER: ${POSTGRES_USER:-postgre_dev_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgre_dev_password_123}
+      POSTGRES_DB: ${POSTGRES_DB:-postgre_dev_db}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      # Redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      # App settings
+      APP_ENV: ${APP_ENV:-development}
+      DEBUG: ${DEBUG:-true}
+      LOG_LEVEL: ${LOG_LEVEL:-debug}
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-key-for-development-only-do-not-use-in-production}
+      # CORS
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-*}
+      # Frontend
+      REACT_APP_API_URL: ${REACT_APP_API_URL:-http://localhost:8000}
+      NODE_ENV: ${NODE_ENV:-development}
+      # Hot reload
+      RELOAD: "true"
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+      # 디버깅 포트 (옵션)
+      - "${DEBUG_PORT:-5678}:5678"
+    volumes:
+      # 소스 코드 실시간 반영
+      - ./backend:/app
+      - backend_dev_data:/app/data
+      # Python 캐시 제외
+      - /app/__pycache__
+      - /app/.pytest_cache
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - nara-network-dev
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - |
+        if [ ! -f /app/.env ]; then
+          if [ -f /app/.env.dev ]; then
+            echo "📄 Copying .env.dev to .env..."
+            cp /app/.env.dev /app/.env
+            echo "✅ 환경변수 복사 완료"
+          fi
+        fi
+        uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --log-level debug
+    stdin_open: true
+    tty: true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # React Frontend - Development
+  frontend:
+    build:
+      context: ./frontend/app
+      dockerfile: Dockerfile.dev
+      target: development
+    container_name: ${PROJECT_NAME:-fastapi-fullstack}-frontend-dev
+    environment:
+      - REACT_APP_API_URL=${REACT_APP_API_URL:-http://localhost:8000}
+      - NODE_ENV=${NODE_ENV:-development}
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    volumes:
+      # 소스 코드 실시간 반영
+      - ./frontend/app:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - nara-network-dev
+    command: npm start
+    stdin_open: true
+    tty: true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Redis Commander - 개발용 Redis GUI (옵션)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: ${PROJECT_NAME:-fastapi-fullstack}-redis-commander
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"
+    networks:
+      - nara-network-dev
+    depends_on:
+      - redis
+    profiles:
+      - tools
+
+  # pgAdmin - 개발용 PostgreSQL GUI (옵션)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: ${PROJECT_NAME:-fastapi-fullstack}-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@nara.local}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_dev_data:/var/lib/pgadmin
+    networks:
+      - nara-network-dev
+    depends_on:
+      - postgres
+    profiles:
+      - tools
+
+networks:
+  nara-network-dev:
+    driver: bridge
+    name: ${PROJECT_NAME:-fastapi-fullstack}-network-dev
+
+volumes:
+  postgres_dev_data:
+    driver: local
+  redis_dev_data:
+    driver: local
+  backend_dev_data:
+    driver: local
+  pgadmin_dev_data:
+    driver: local

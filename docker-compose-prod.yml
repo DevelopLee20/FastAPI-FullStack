@@ -1,0 +1,283 @@
+services:
+  # PostgreSQL Database - Production
+  postgres:
+    image: postgres:15-alpine
+    container_name: ${PROJECT_NAME:-fastapi-fullstack}-postgres-prod
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      # 성능 최적화
+      POSTGRES_INITDB_ARGS: "-E UTF8 --locale=C"
+    ports:
+      # 프로덕션에서는 외부 노출 최소화 (필요시 주석 해제)
+      # - "${POSTGRES_PORT:-5432}:5432"
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+      # 백업 디렉토리
+      - ./backups/postgres:/backups
+    networks:
+      - nara-network-prod
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    # 리소스 제한
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Redis Cache - Production
+  redis:
+    image: redis:7-alpine
+    container_name: ${PROJECT_NAME}-redis-prod
+    command: >
+      redis-server
+      --appendonly yes
+      --requirepass ${REDIS_PASSWORD}
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+    ports:
+      # 프로덕션에서는 외부 노출 최소화
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_prod_data:/data
+      # Redis 설정 파일 (옵션)
+      # - ./redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    networks:
+      - nara-network-prod
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # FastAPI Backend - Production
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: production
+      args:
+        - BUILD_DATE=${BUILD_DATE}
+        - VERSION=${VERSION}
+    container_name: ${PROJECT_NAME}-backend-prod
+    environment:
+      # Mode & Project Info
+      MODE: ${MODE:-prod}
+      PROJECT_NAME: ${PROJECT_NAME}
+      APP_TITLE: ${APP_TITLE}
+      APP_DESCRIPTION: ${APP_DESCRIPTION}
+      APP_VERSION: ${APP_VERSION}
+      # PostgreSQL Database
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-postgre_prod_db}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      # Redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      # App settings
+      APP_ENV: ${APP_ENV:-production}
+      DEBUG: ${DEBUG:-false}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      SECRET_KEY: ${SECRET_KEY}
+      # CORS
+      CORS_ORIGINS: ${CORS_ORIGINS}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS}
+      # Workers
+      WORKERS: ${WORKERS:-4}
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    volumes:
+      # 로그만 마운트
+      - ./logs/backend:/app/logs
+      - backend_prod_data:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - nara-network-prod
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - |
+        if [ ! -f /app/.env ]; then
+          if [ -f /app/.env.prod ]; then
+            echo "📄 Copying .env.prod to .env..."
+            cp /app/.env.prod /app/.env
+            echo "✅ 환경변수 복사 완료"
+          fi
+        fi
+        gunicorn app.main:app --workers ${WORKERS:-4} --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000 --timeout ${TIMEOUT:-120} --keep-alive ${KEEP_ALIVE:-5} --log-level ${LOG_LEVEL:-info} --access-logfile - --error-logfile -
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 512M
+      replicas: 1
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  # React Frontend - Production
+  frontend:
+    build:
+      context: ./frontend/app
+      dockerfile: Dockerfile
+      target: production
+      args:
+        - REACT_APP_API_URL=${REACT_APP_API_URL}
+        - BUILD_DATE=${BUILD_DATE}
+        - VERSION=${VERSION}
+    container_name: ${PROJECT_NAME}-frontend-prod
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+    ports:
+      - "${FRONTEND_PORT:-80}:80"
+      - "${FRONTEND_SSL_PORT:-443}:443"
+    volumes:
+      # Nginx 로그
+      - ./logs/nginx:/var/log/nginx
+      # SSL 인증서 (Let's Encrypt 등)
+      # - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - backend
+    networks:
+      - nara-network-prod
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 128M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+    profiles:
+      - frontend
+
+  # Nginx Reverse Proxy (옵션 - SSL 종료 및 로드 밸런싱)
+  nginx-proxy:
+    image: nginx:alpine
+    container_name: ${PROJECT_NAME}-nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - ./logs/nginx-proxy:/var/log/nginx
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - nara-network-prod
+    restart: unless-stopped
+    profiles:
+      - proxy
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  # 백업 서비스 (Cron 기반)
+  backup:
+    image: postgres:15-alpine
+    container_name: ${PROJECT_NAME}-backup
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - ./backups:/backups
+      - ./scripts/backup.sh:/backup.sh:ro
+    networks:
+      - nara-network-prod
+    depends_on:
+      - postgres
+    entrypoint: /bin/sh
+    command: -c "crond -f -l 2"
+    restart: unless-stopped
+    profiles:
+      - backup
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  nara-network-prod:
+    driver: bridge
+    name: ${PROJECT_NAME}-network-prod
+    # TODO: 정상동작시 삭제
+    # ipam:
+    #   config:
+    #     - subnet: 172.25.0.0/16
+
+volumes:
+  postgres_prod_data:
+    driver: local
+  redis_prod_data:
+    driver: local
+  backend_prod_data:
+    driver: local
