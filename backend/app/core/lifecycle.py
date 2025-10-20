@@ -15,6 +15,7 @@ from app.services.env_services.env_sync import EnvSyncService
 # 로깅 설정
 setup_logging()
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
