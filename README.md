@@ -1,0 +1,2 @@
+# FastAPI-FullStack
+FastAPI, React
