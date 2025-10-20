@@ -1,8 +1,7 @@
 """
 Redis Cache Manager for Environment Variables
 """
-import json
-from typing import Optional, Dict, List
+from typing import Optional, Dict
 import redis
 from app.db.redis_db import RedisDB
 
@@ -39,7 +38,7 @@ class EnvCacheService:
             redis_key = self._make_key(key)
             value = self.redis_client.get(redis_key)
             return value
-        except redis.RedisError as e:
+        except redis.RedisError:
             # Redis 오류 시 None 반환 (DB에서 조회하도록)
             # TODO: LOG 추가 - print(f"Redis get error for key {key}: {e}")
             return None
@@ -65,7 +64,7 @@ class EnvCacheService:
                     result[key] = value
 
             return result
-        except redis.RedisError as e:
+        except redis.RedisError:
             # TODO: LOG 추가 - print(f"Redis get_all error: {e}")
             return {}
 
@@ -84,7 +83,7 @@ class EnvCacheService:
             redis_key = self._make_key(key)
             self.redis_client.set(redis_key, value)
             return True
-        except redis.RedisError as e:
+        except redis.RedisError:
             # TODO: LOG 추가 - print(f"Redis set error for key {key}: {e}")
             return False
 
@@ -105,7 +104,7 @@ class EnvCacheService:
                 pipeline.set(redis_key, value)
             pipeline.execute()
             return True
-        except redis.RedisError as e:
+        except redis.RedisError:
             # TODO: LOG 추가 - print(f"Redis set_many error: {e}")
             return False
 
@@ -123,7 +122,7 @@ class EnvCacheService:
             redis_key = self._make_key(key)
             self.redis_client.delete(redis_key)
             return True
-        except redis.RedisError as e:
+        except redis.RedisError:
             # TODO: LOG 추가 - print(f"Redis delete error for key {key}: {e}")
             return False
 
@@ -140,7 +139,7 @@ class EnvCacheService:
             if keys:
                 self.redis_client.delete(*keys)
             return True
-        except redis.RedisError as e:
+        except redis.RedisError:
             # TODO: LOG 추가 - print(f"Redis clear_all error: {e}")
             return False
 
@@ -159,7 +158,7 @@ class EnvCacheService:
             self.clear_all()
             # 새로운 데이터 일괄 저장
             return self.set_many(env_dict)
-        except Exception as e:
+        except Exception:
             # TODO: LOG 추가 - print(f"Redis sync_from_db error: {e}")
             return False
 
@@ -176,6 +175,6 @@ class EnvCacheService:
         try:
             redis_key = self._make_key(key)
             return self.redis_client.exists(redis_key) > 0
-        except redis.RedisError as e:
+        except redis.RedisError:
             # TODO: LOG 추가 - print(f"Redis exists error for key {key}: {e}")
             return False

@@ -15,7 +15,7 @@ app = FastAPI(
     title=settings.APP_TITLE,
     description=settings.APP_DESCRIPTION,
     version=settings.APP_VERSION,
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 
@@ -41,7 +41,7 @@ async def health_check():
         "status": "healthy",
         "service": settings.APP_TITLE,
         "version": settings.APP_VERSION,
-        "mode": settings.MODE
+        "mode": settings.MODE,
     }
 
 
@@ -52,7 +52,7 @@ async def root():
         "message": f"{settings.APP_TITLE} - Environment Variable Management",
         "docs": "/docs",
         "health": "/health",
-        "env_api": "/api/env"
+        "env_api": "/api/env",
     }
 
 
@@ -63,5 +63,5 @@ if __name__ == "__main__":
         "app.main:app",
         host="0.0.0.0",
         port=settings.BACKEND_PORT,
-        reload=settings.DEBUG
+        reload=settings.DEBUG,
     )

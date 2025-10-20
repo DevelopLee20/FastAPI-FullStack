@@ -58,7 +58,7 @@ async def lifespan(app: FastAPI):
         try:
             env_service = EnvVariableService(db)
             if env_service.sync_to_redis():
-                env_count = len(env_service.get_all())
+                pass
                 # TODO: LOG 추가 - print(f"✓ Synced {env_count} environment variables to Redis cache")
             else:
                 # TODO: LOG 추가 - print("⚠ Failed to sync environment variables to Redis")
@@ -70,7 +70,7 @@ async def lifespan(app: FastAPI):
         # TODO: LOG 추가 - print("✓ Application startup completed successfully")
         # TODO: LOG 추가 - print("=" * 60 + "\n")
 
-    except Exception as e:
+    except Exception:
         # TODO: LOG 추가 - print(f"\n✗ Startup error: {e}")
         raise
 
@@ -117,7 +117,7 @@ async def lifespan(app: FastAPI):
         # TODO: LOG 추가 - print("✓ Application shutdown completed successfully")
         # TODO: LOG 추가 - print("=" * 60 + "\n")
 
-    except Exception as e:
+    except Exception:
         # TODO: LOG 추가 - print(f"\n✗ Shutdown error: {e}")
         # 종료 시에는 에러를 발생시키지 않음
         pass

@@ -34,7 +34,7 @@ class PostgreDB:
                         pool_size=5,
                         max_overflow=10,
                         pool_pre_ping=True,
-                        echo=getattr(settings, 'DEBUG', False),
+                        echo=getattr(settings, "DEBUG", False),
                     )
 
                     # 연결 테스트
@@ -49,7 +49,7 @@ class PostgreDB:
                     # TODO: LOG 추가 - print("✓ PostgreSQL 엔진 초기화 완료")
                     return
 
-                except Exception as e:
+                except Exception:
                     # TODO: LOG 추가 - print(f"⚠ PostgreSQL connection attempt {attempt}/{cls.MAX_RETRIES} failed: {e}")
                     if attempt < cls.MAX_RETRIES:
                         # TODO: LOG 추가 - print(f"   Retrying in {cls.RETRY_DELAY} seconds...")
@@ -70,7 +70,7 @@ class PostgreDB:
             yield db
         finally:
             db.close()
-    
+
     @classmethod
     def get_session(cls) -> Session:
         """
@@ -92,6 +92,7 @@ class PostgreDB:
         try:
             # TODO: 동시성 처리가 이래도 안된다면 롤백해야 함
             from app.models.env_model import Base
+
             # checkfirst=True는 기본값이지만, 명시적으로 지정
             # 이미 존재하는 테이블은 건너뛰고 새로운 테이블만 생성
             Base.metadata.create_all(bind=cls._engine, checkfirst=True)

@@ -3,6 +3,7 @@ import time
 
 from app.core.env import settings
 
+
 class RedisDB:
     # Redis 싱글톤 객체
     _instance = None
@@ -18,10 +19,12 @@ class RedisDB:
             for attempt in range(1, cls.MAX_RETRIES + 1):
                 try:
                     # Redis 비밀번호 설정 확인
-                    redis_password = getattr(settings, 'REDIS_PASSWORD', None)
+                    redis_password = getattr(settings, "REDIS_PASSWORD", None)
 
                     cls._instance = redis.Redis(
-                        host=settings.REDIS_HOST if hasattr(settings, 'REDIS_HOST') else 'redis',
+                        host=settings.REDIS_HOST
+                        if hasattr(settings, "REDIS_HOST")
+                        else "redis",
                         port=settings.REDIS_PORT,
                         password=redis_password if redis_password else None,
                         db=0,  # 환경변수 전용 DB
@@ -29,7 +32,7 @@ class RedisDB:
                         socket_connect_timeout=5,
                         socket_timeout=5,
                         retry_on_timeout=True,
-                        health_check_interval=30
+                        health_check_interval=30,
                     )
 
                     # 연결 테스트
@@ -37,7 +40,7 @@ class RedisDB:
                     # TODO: LOG 추가(클라이언트 연결 성공)
                     return cls._instance
 
-                except Exception as e:
+                except Exception:
                     # TODO: LOG 추가 - print(f"⚠ Redis connection attempt {attempt}/{cls.MAX_RETRIES} failed: {e}")
                     cls._instance = None
                     if attempt < cls.MAX_RETRIES:
@@ -48,7 +51,7 @@ class RedisDB:
                         raise
 
         return cls._instance
-    
+
     @classmethod
     def close(cls):
         """
@@ -58,7 +61,7 @@ class RedisDB:
             cls._instance.close()
             cls._instance = None
             # TODO: LOG 추가, ✓ Redis 클라이언트 연결 종료
-            
+
     @classmethod
     def test_connection(cls) -> bool:
         """
@@ -69,9 +72,10 @@ class RedisDB:
             client.ping()
             # TODO: print("✓ Redis 연결 테스트 성공")
             return True
-        except Exception as e:
+        except Exception:
             # TODO: print(f"✗ Redis 연결 테스트 실패: {e}")
             return False
+
 
 # 전역 Redis 의존성 주입용 인스턴스 반환 함수
 def depend_get_instance() -> redis.Redis:

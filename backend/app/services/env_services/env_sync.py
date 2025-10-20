@@ -16,9 +16,7 @@ class EnvSyncService:
 
     @staticmethod
     def export_to_env_file(
-        env_dict: Dict[str, str],
-        output_path: str = ".env",
-        backup: bool = True
+        env_dict: Dict[str, str], output_path: str = ".env", backup: bool = True
     ) -> bool:
         """
         환경변수 딕셔너리를 .env 파일로 내보내기
@@ -50,14 +48,14 @@ class EnvSyncService:
                 for key in sorted(env_dict.keys()):
                     value = env_dict[key]
                     # 특수문자나 공백이 있는 경우 따옴표로 감싸기
-                    if " " in value or any(c in value for c in ['$', '#', '"', "'"]):
+                    if " " in value or any(c in value for c in ["$", "#", '"', "'"]):
                         value = f'"{value}"'
                     f.write(f"{key}={value}\n")
 
             # TODO: LOG 추가 - print(f"Environment variables exported to {output_path} ({len(env_dict)} variables)")
             return True
 
-        except Exception as e:
+        except Exception:
             # TODO: LOG 추가 - print(f"Failed to export environment variables to {output_path}: {e}")
             return False
 
@@ -85,15 +83,13 @@ class EnvSyncService:
             # TODO: LOG 추가 - print(f"Loaded {len(env_dict)} environment variables from {file_path}")
             return env_dict
 
-        except Exception as e:
+        except Exception:
             # TODO: LOG 추가 - print(f"Failed to load environment variables from {file_path}: {e}")
             return {}
 
     @staticmethod
     def merge_env_files(
-        source_path: str,
-        target_path: str,
-        overwrite: bool = False
+        source_path: str, target_path: str, overwrite: bool = False
     ) -> bool:
         """
         두 .env 파일 병합
@@ -120,12 +116,10 @@ class EnvSyncService:
 
             # 병합 결과 저장
             return EnvSyncService.export_to_env_file(
-                merged,
-                output_path=target_path,
-                backup=True
+                merged, output_path=target_path, backup=True
             )
 
-        except Exception as e:
+        except Exception:
             # TODO: LOG 추가 - print(f"Failed to merge env files: {e}")
             return False
 
@@ -223,10 +217,11 @@ class EnvSyncService:
 
             # 백업에서 복원
             import shutil
+
             shutil.copy2(backup_path, target_path)
             # TODO: LOG 추가 - print(f"Restored from {backup_path} to {target_path}")
             return True
 
-        except Exception as e:
+        except Exception:
             # TODO: LOG 추가 - print(f"Failed to restore from backup: {e}")
             return False

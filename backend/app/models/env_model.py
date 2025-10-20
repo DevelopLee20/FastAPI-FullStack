@@ -19,13 +19,16 @@ class EnvVariable(Base):
         created_at: 생성 시각
         updated_at: 마지막 수정 시각
     """
+
     __tablename__ = "env_variables"
 
     key = Column(String(255), primary_key=True, index=True, nullable=False)
     value = Column(Text, nullable=False)
     description = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    updated_at = Column(
+        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+    )
 
     def __repr__(self):
         return f"<EnvVariable(key={self.key}, value={self.value[:20]}...)>"

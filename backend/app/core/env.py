@@ -1,6 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import List
 
+
 class Settings(BaseSettings):
     """
     애플리케이션 환경 변수 설정
@@ -9,11 +10,12 @@ class Settings(BaseSettings):
     1. 시스템 환경 변수 (Docker 컨테이너에서 설정)
     2. .env 파일
     """
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
         case_sensitive=False,
-        extra="ignore"  # 추가 필드 무시
+        extra="ignore",  # 추가 필드 무시
     )
     # 애플리케이션 기본 설정
     MODE: str
@@ -58,7 +60,7 @@ class Settings(BaseSettings):
     # Frontend Configuration
     REACT_APP_API_URL: str = "http://localhost:8000"
     NODE_ENV: str = "development"
-    
+
     @property
     def DATABASE_URL(self) -> str:
         """
@@ -72,5 +74,6 @@ class Settings(BaseSettings):
         CORS origins를 리스트로 변환
         """
         return [origin.strip() for origin in self.CORS_ORIGINS.split(",")]
-    
+
+
 settings = Settings()

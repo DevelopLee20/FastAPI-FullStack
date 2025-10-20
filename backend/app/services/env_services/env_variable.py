@@ -71,9 +71,9 @@ class EnvVariableService:
             ValueError: 이미 존재하는 키인 경우
         """
         # 중복 확인
-        existing = self.db.query(EnvVariable).filter(
-            EnvVariable.key == env_create.key
-        ).first()
+        existing = (
+            self.db.query(EnvVariable).filter(EnvVariable.key == env_create.key).first()
+        )
 
         if existing:
             raise ValueError(f"Environment variable '{env_create.key}' already exists")
@@ -82,7 +82,7 @@ class EnvVariableService:
         env_var = EnvVariable(
             key=env_create.key,
             value=env_create.value,
-            description=env_create.description
+            description=env_create.description,
         )
 
         try:
@@ -197,9 +197,7 @@ class EnvVariableService:
                 continue
 
             # 이미 존재하는지 확인
-            existing = self.db.query(EnvVariable).filter(
-                EnvVariable.key == key
-            ).first()
+            existing = self.db.query(EnvVariable).filter(EnvVariable.key == key).first()
 
             if not existing:
                 env_var = EnvVariable(key=key, value=value)
@@ -210,7 +208,7 @@ class EnvVariableService:
             self.db.commit()
             # TODO: LOG 추가 - print(f"Loaded {count} environment variables from {env_file_path}")
             return count
-        except SQLAlchemyError as e:
+        except SQLAlchemyError:
             self.db.rollback()
             # TODO: LOG 추가 - print(f"Failed to load environment variables: {e}")
             return 0
