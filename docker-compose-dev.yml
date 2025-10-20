@@ -79,6 +79,8 @@ services:
       # 디버깅 포트 (옵션)
       - "${DEBUG_PORT:-5678}:5678"
     volumes:
+      # .env 파일 마운트
+      - ./.env:/app/.env:ro
       # 소스 코드 실시간 반영
       - ./backend:/app
       - backend_dev_data:/app/data
@@ -92,17 +94,7 @@ services:
         condition: service_healthy
     networks:
       - nara-network-dev
-    entrypoint: ["/bin/bash", "-c"]
-    command:
-      - |
-        if [ ! -f /app/.env ]; then
-          if [ -f /app/.env.dev ]; then
-            echo "📄 Copying .env.dev to .env..."
-            cp /app/.env.dev /app/.env
-            echo "✅ 환경변수 복사 완료"
-          fi
-        fi
-        uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --log-level debug
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --log-level debug
     stdin_open: true
     tty: true
     healthcheck:

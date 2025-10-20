@@ -10,7 +10,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 echo -e "${BLUE}========================================${NC}"
-echo -e "${BLUE}  발 환경 시작${NC}"
+echo -e "${BLUE}  개발 환경 시작${NC}"
 echo -e "${BLUE}========================================${NC}"
 echo ""
 
@@ -19,6 +19,11 @@ if [ ! -f .env.dev ]; then
     echo -e "${RED}❌ .env.dev 파일이 없습니다.${NC}"
     exit 1
 fi
+
+# .env.dev를 .env에 복사
+echo -e "${GREEN}📋 .env.dev를 .env 파일로 복사합니다...${NC}"
+cp .env.dev .env
+echo ""
 
 # docker-compose-dev.yml 파일 확인
 if [ ! -f docker-compose-dev.yml ]; then
@@ -44,7 +49,7 @@ fi
 # 기존 컨테이너 정리 (재시작)
 if [ "$(docker ps -a -q -f name=${PROJECT_NAME})" ]; then
     echo -e "${YELLOW}🔄 기존 컨테이너를 중지하고 재시작합니다...${NC}"
-    docker-compose -f docker-compose-dev.yml --env-file .env.dev down -v
+    docker-compose -f docker-compose-dev.yml --env-file .env down -v
     echo ""
 fi
 
@@ -52,7 +57,7 @@ echo -e "${GREEN}🚀 개발 환경 시작 중...${NC}"
 echo ""
 
 # Docker Compose 실행
-docker-compose -f docker-compose-dev.yml --env-file .env.dev up -d --build
+docker-compose -f docker-compose-dev.yml --env-file .env up -d --build
 
 echo ""
 echo -e "${GREEN}========================================${NC}"

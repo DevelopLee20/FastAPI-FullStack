@@ -122,6 +122,8 @@ services:
     ports:
       - "${BACKEND_PORT:-8000}:8000"
     volumes:
+      # .env 파일 마운트
+      - ./.env:/app/.env:ro
       # 로그만 마운트
       - ./logs/backend:/app/logs
       - backend_prod_data:/app/data
@@ -132,17 +134,7 @@ services:
         condition: service_healthy
     networks:
       - nara-network-prod
-    entrypoint: ["/bin/bash", "-c"]
-    command:
-      - |
-        if [ ! -f /app/.env ]; then
-          if [ -f /app/.env.prod ]; then
-            echo "📄 Copying .env.prod to .env..."
-            cp /app/.env.prod /app/.env
-            echo "✅ 환경변수 복사 완료"
-          fi
-        fi
-        gunicorn app.main:app --workers ${WORKERS:-4} --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000 --timeout ${TIMEOUT:-120} --keep-alive ${KEEP_ALIVE:-5} --log-level ${LOG_LEVEL:-info} --access-logfile - --error-logfile -
+    command: gunicorn app.main:app --workers ${WORKERS:-4} --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000 --timeout ${TIMEOUT:-120} --keep-alive ${KEEP_ALIVE:-5} --log-level ${LOG_LEVEL:-info} --access-logfile - --error-logfile -
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
