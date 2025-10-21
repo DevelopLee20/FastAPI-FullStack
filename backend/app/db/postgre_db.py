@@ -1,7 +1,6 @@
 from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import QueuePool
-from sqlmodel import SQLModel, select
+from sqlmodel import SQLModel, select, Session
 from typing import Annotated, Generator
 import time
 import jwt
@@ -23,7 +22,6 @@ class PostgreDB:
     """
 
     _engine = None
-    _SessionLocal = None
     MAX_RETRIES = 3
     RETRY_DELAY = 2  # seconds
 
@@ -48,11 +46,6 @@ class PostgreDB:
                     with cls._engine.connect() as conn:
                         conn.execute(text("SELECT 1"))
 
-                    cls._SessionLocal = sessionmaker(
-                        autocommit=False,
-                        autoflush=False,
-                        bind=cls._engine,
-                    )
                     # TODO: LOG 추가 - print("✓ PostgreSQL 엔진 초기화 완료")
                     return
 
@@ -70,22 +63,19 @@ class PostgreDB:
         """
         FastAPI 의존성 주입용 DB 세션 생성기
         """
-        if cls._SessionLocal is None:
+        if cls._engine is None:
             cls._init_engine()
-        db = cls._SessionLocal()
-        try:
-            yield db
-        finally:
-            db.close()
+        with Session(cls._engine) as session:
+            yield session
 
     @classmethod
     def get_session(cls) -> Session:
         """
         FastAPI 의존성 주입용 DB 세션 생성기
         """
-        if cls._SessionLocal is None:
+        if cls._engine is None:
             cls._init_engine()
-        return cls._SessionLocal()
+        return Session(cls._engine)
 
     @classmethod
     def init_db(cls, session: Session | None = None):
@@ -159,7 +149,6 @@ class PostgreDB:
         if cls._engine:
             cls._engine.dispose()
             cls._engine = None
-            cls._SessionLocal = None
             # TODO: LOG 추가 - print("✓ Database connection closed")
 
 

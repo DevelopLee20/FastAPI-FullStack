@@ -7,9 +7,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.core.logging import setup_logging
-from sqlmodel import Session
 
-from app.core.db import engine as auth_engine, init_db as init_auth_db
 from app.db.postgre_db import PostgreDB
 from app.db.redis_db import RedisDB
 from app.services.env_services.env_variable import EnvVariableService
@@ -44,10 +42,6 @@ async def lifespan(app: FastAPI):
         logging.info("\n[1/3] Initializing database tables...")
         PostgreDB.init_db()
         logging.info("✓ Database tables initialized")
-        logging.info("[1b/3] Ensuring authentication tables and superuser...")
-        with Session(auth_engine) as session:
-            init_auth_db(session)
-        logging.info("✓ Authentication tables ready")
 
         # 2. .env 파일 -> PostgreSQL 동기화
         logging.info("\n[2/3] Syncing .env to PostgreSQL...")

@@ -16,6 +16,7 @@ python-dotenv = "*"
 sqlmodel = "*"
 pyjwt = "*"
 passlib = {extras = ["bcrypt"], version = "*"}
+bcrypt = "~=3.2.0"
 email-validator = "*"
 pandas = "*"
 openpyxl = "*"
@@ -23,6 +24,7 @@ xlrd = "*"
 pydantic-settings = "*"
 pytest = "*"
 httpx = "*"
+python-multipart = "*"
 
 [dev-packages]
 pytest-cov = "*"
