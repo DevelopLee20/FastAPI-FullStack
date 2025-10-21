@@ -1,6 +1,7 @@
 #!/bin/bash
 
-set -e
+# 주의: 절대 서버에서 사용하지 않기
+set +e
 
 # 1️⃣ 모든 컨테이너 중지 및 삭제
 docker stop $(docker ps -aq)
