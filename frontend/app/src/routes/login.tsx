@@ -1,4 +1,4 @@
-import { Container, Input, Text, Heading } from "@chakra-ui/react"
+import { Container, Heading, Input, Text } from "@chakra-ui/react"
 import {
   createFileRoute,
   Link as RouterLink,
@@ -67,7 +67,10 @@ function Login() {
       <Heading size="lg" textAlign="center" mb={4}>
         Sign in
       </Heading>
-      <Field invalid={!!errors.username} errorText={errors.username?.message || !!error}>
+      <Field
+        invalid={!!errors.username}
+        errorText={errors.username?.message || !!error}
+      >
         <InputGroup w="100%" startElement={<FiUser />}>
           <Input
             {...register("username", {

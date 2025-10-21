@@ -97,23 +97,41 @@ const EditUser = ({ user }: EditUserProps) => {
           <DialogBody>
             <Text mb={4}>Update the user details below.</Text>
             <VStack gap={4}>
-              <Field invalid={!!errors.username} errorText={errors.username?.message} label="Username">
+              <Field
+                invalid={!!errors.username}
+                errorText={errors.username?.message}
+                label="Username"
+              >
                 <Input
-                  {...register("username", { minLength: { value: 3, message: "At least 3 characters" } })}
+                  {...register("username", {
+                    minLength: { value: 3, message: "At least 3 characters" },
+                  })}
                   placeholder="Username"
                   type="text"
                 />
               </Field>
-              <Field invalid={!!errors.nickname} errorText={errors.nickname?.message} label="Nickname">
+              <Field
+                invalid={!!errors.nickname}
+                errorText={errors.nickname?.message}
+                label="Nickname"
+              >
                 <Input
                   {...register("nickname")}
                   placeholder="Nickname"
                   type="text"
                 />
               </Field>
-              <Field required invalid={!!errors.email} errorText={errors.email?.message} label="Email">
+              <Field
+                required
+                invalid={!!errors.email}
+                errorText={errors.email?.message}
+                label="Email"
+              >
                 <Input
-                  {...register("email", { required: "Email is required", pattern: emailPattern })}
+                  {...register("email", {
+                    required: "Email is required",
+                    pattern: emailPattern,
+                  })}
                   placeholder="Email"
                   type="email"
                 />

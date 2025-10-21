@@ -7,7 +7,7 @@ import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
-
+from typing import Any
 from pydantic import ValidationError
 
 from app.core.env import settings
@@ -125,7 +125,9 @@ class PostgreDB:
             should_close = True
 
         try:
-            user = session.exec(select(User).where(User.email == settings.FIRST_SUPERUSER)).first()
+            user = session.exec(
+                select(User).where(User.email == settings.FIRST_SUPERUSER)
+            ).first()
             if not user:
                 user_in = UserCreate(
                     username=settings.FIRST_SUPERUSER,
@@ -191,7 +193,9 @@ def get_current_user(session: SessionDep, token: TokenDep):
     return user
 
 
-def get_current_active_superuser(current_user: Annotated[object, Depends(get_current_user)]):
+def get_current_active_superuser(
+    current_user: Annotated[object, Depends(get_current_user)],
+):
     """현재 슈퍼유저 권한 확인"""
     if not current_user.is_superuser:
         raise HTTPException(
@@ -202,5 +206,5 @@ def get_current_active_superuser(current_user: Annotated[object, Depends(get_cur
 
 # 타입 어노테이션 (라우터에서 import해서 사용)
 # Note: User 타입은 순환 import 방지를 위해 Any로 선언하고, 런타임에는 User 객체가 반환됨
-from typing import Any
+
 CurrentUser = Annotated[Any, Depends(get_current_user)]

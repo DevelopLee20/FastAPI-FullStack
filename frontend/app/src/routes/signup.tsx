@@ -1,11 +1,11 @@
-import { Container, Flex, Input, Text, Heading } from "@chakra-ui/react"
+import { Container, Flex, Heading, Input, Text } from "@chakra-ui/react"
 import {
   createFileRoute,
   Link as RouterLink,
   redirect,
 } from "@tanstack/react-router"
 import { type SubmitHandler, useForm } from "react-hook-form"
-import { FiLock, FiUser, FiAtSign } from "react-icons/fi"
+import { FiAtSign, FiLock, FiUser } from "react-icons/fi"
 
 import type { UserRegister } from "@/client"
 import { Button } from "@/components/ui/button"
@@ -26,7 +26,9 @@ export const Route = createFileRoute("/signup")({
   },
 })
 
-interface UserRegisterForm extends UserRegister { confirm_password: string }
+interface UserRegisterForm extends UserRegister {
+  confirm_password: string
+}
 
 function SignUp() {
   const { signUpMutation } = useAuth()
@@ -38,7 +40,13 @@ function SignUp() {
   } = useForm<UserRegisterForm>({
     mode: "onBlur",
     criteriaMode: "all",
-    defaultValues: { username: "", nickname: "", email: "", password: "", confirm_password: "" },
+    defaultValues: {
+      username: "",
+      nickname: "",
+      email: "",
+      password: "",
+      confirm_password: "",
+    },
   })
 
   const onSubmit: SubmitHandler<UserRegisterForm> = (data) => {

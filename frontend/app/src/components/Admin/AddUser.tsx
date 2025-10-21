@@ -45,7 +45,15 @@ const AddUser = () => {
   } = useForm<UserCreateForm>({
     mode: "onBlur",
     criteriaMode: "all",
-    defaultValues: { username: "", nickname: "", email: "", password: "", confirm_password: "", is_superuser: false, is_active: false },
+    defaultValues: {
+      username: "",
+      nickname: "",
+      email: "",
+      password: "",
+      confirm_password: "",
+      is_superuser: false,
+      is_active: false,
+    },
   })
 
   const mutation = useMutation({
@@ -91,31 +99,52 @@ const AddUser = () => {
               Fill in the form below to add a new user to the system.
             </Text>
             <VStack gap={4}>
-              <Field required invalid={!!errors.username} errorText={errors.username?.message} label="Username">
+              <Field
+                required
+                invalid={!!errors.username}
+                errorText={errors.username?.message}
+                label="Username"
+              >
                 <Input
-                  {...register("username", { required: "Username is required", minLength: { value: 3, message: "At least 3 characters" } })}
+                  {...register("username", {
+                    required: "Username is required",
+                    minLength: { value: 3, message: "At least 3 characters" },
+                  })}
                   placeholder="Username"
                   type="text"
                 />
               </Field>
 
-              <Field required invalid={!!errors.nickname} errorText={errors.nickname?.message} label="Nickname">
+              <Field
+                required
+                invalid={!!errors.nickname}
+                errorText={errors.nickname?.message}
+                label="Nickname"
+              >
                 <Input
-                  {...register("nickname", { required: "Nickname is required" })}
+                  {...register("nickname", {
+                    required: "Nickname is required",
+                  })}
                   placeholder="Nickname"
                   type="text"
                 />
               </Field>
 
-              <Field required invalid={!!errors.email} errorText={errors.email?.message} label="Email">
+              <Field
+                required
+                invalid={!!errors.email}
+                errorText={errors.email?.message}
+                label="Email"
+              >
                 <Input
-                  {...register("email", { required: "Email is required", pattern: emailPattern })}
+                  {...register("email", {
+                    required: "Email is required",
+                    pattern: emailPattern,
+                  })}
                   placeholder="Email"
                   type="email"
                 />
               </Field>
-
-              
 
               <Field
                 required

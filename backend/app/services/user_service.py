@@ -54,4 +54,3 @@ class UserService:
         if not verify_password(password, db_user.hashed_password):
             return None
         return db_user
-

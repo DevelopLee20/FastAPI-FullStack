@@ -25,7 +25,7 @@ export class LoginService {
             }
         });
     }
-    
+
     /**
      * Test Token
      * Test access token
@@ -60,7 +60,7 @@ export class UsersService {
             }
         });
     }
-    
+
     /**
      * Read Users
      * Retrieve users.
@@ -83,7 +83,7 @@ export class UsersService {
             }
         });
     }
-    
+
     /**
      * Create User
      * Create new user (admin only).
@@ -103,7 +103,7 @@ export class UsersService {
             }
         });
     }
-    
+
     /**
      * Read User Me
      * Get current user.
@@ -116,7 +116,7 @@ export class UsersService {
             url: '/api/v1/users/me'
         });
     }
-    
+
     /**
      * Delete User Me
      * Delete own user.
@@ -129,7 +129,7 @@ export class UsersService {
             url: '/api/v1/users/me'
         });
     }
-    
+
     /**
      * Update User Me
      * Update own user.
@@ -149,7 +149,7 @@ export class UsersService {
             }
         });
     }
-    
+
     /**
      * Update Password Me
      * Update own password.
@@ -169,7 +169,7 @@ export class UsersService {
             }
         });
     }
-    
+
     /**
      * Read User By Id
      * Get a specific user by id.
@@ -190,7 +190,7 @@ export class UsersService {
             }
         });
     }
-    
+
     /**
      * Update User
      * Update a user (admin only).
@@ -214,7 +214,7 @@ export class UsersService {
             }
         });
     }
-    
+
     /**
      * Delete User
      * Delete a user (admin only).

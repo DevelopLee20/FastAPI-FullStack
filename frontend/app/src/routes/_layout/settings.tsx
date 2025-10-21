@@ -28,7 +28,8 @@ function UserSettings() {
     ? tabsConfig.slice(0, 3)
     : tabsConfig
   const { tab } = Route.useSearch()
-  const defaultTab = tab && finalTabs.find((t) => t.value === tab) ? tab : "my-profile"
+  const defaultTab =
+    tab && finalTabs.find((t) => t.value === tab) ? tab : "my-profile"
 
   if (!currentUser) {
     return null

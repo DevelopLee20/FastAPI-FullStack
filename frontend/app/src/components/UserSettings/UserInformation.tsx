@@ -36,7 +36,10 @@ const UserInformation = () => {
   } = useForm<UserPublic>({
     mode: "onBlur",
     criteriaMode: "all",
-    defaultValues: { nickname: (currentUser as any)?.nickname, email: currentUser?.email },
+    defaultValues: {
+      nickname: (currentUser as any)?.nickname,
+      email: currentUser?.email,
+    },
   })
 
   const toggleEditMode = () => {
@@ -87,7 +90,7 @@ const UserInformation = () => {
             <Text
               fontSize="md"
               py={2}
-              color={!((currentUser as any)?.nickname) ? "gray" : "inherit"}
+              color={!(currentUser as any)?.nickname ? "gray" : "inherit"}
               truncate
               maxW="sm"
             >
