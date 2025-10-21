@@ -1,44 +1,23 @@
-# Frontend Dockerfile for React - Multi-stage build
+# Stage 0, "build-stage", based on Node.js, to build and compile the frontend
+FROM node:24 AS build-stage
 
-# Stage 1: Build the React application
-FROM node:18-alpine AS build
-
-# 작업 디렉토리 설정
 WORKDIR /app
 
-# package.json과 package-lock.json 복사
-COPY package*.json ./
+COPY package*.json /app/
 
-# 의존성 설치 (package-lock.json 재생성)
-RUN npm install --silent
+RUN npm install
 
-# 애플리케이션 소스 복사
-COPY . .
+COPY ./ /app/
 
-# 빌드 인자로 환경 변수 받기
-ARG REACT_APP_API_URL
-ENV REACT_APP_API_URL=$REACT_APP_API_URL
+ARG VITE_API_URL=${VITE_API_URL}
 
-# 프로덕션 빌드
 RUN npm run build
 
-# Stage 2: Nginx로 서빙
-FROM nginx:alpine AS production
 
-# 빌드 인자
-ARG BUILD_DATE
-ARG VERSION
-LABEL build_date=$BUILD_DATE
-LABEL version=$VERSION
+# Stage 1, based on Nginx, to have only the compiled app, ready for production with Nginx
+FROM nginx:1
 
-# Nginx 설정 파일 복사 (커스텀 설정이 필요한 경우)
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build-stage /app/dist/ /usr/share/nginx/html
 
-# 빌드된 파일을 Nginx의 기본 디렉토리로 복사
-COPY --from=build /app/build /usr/share/nginx/html
-
-# 포트 노출
-EXPOSE 80
-
-# Nginx 실행
-CMD ["nginx", "-g", "daemon off;"]
+COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+COPY ./nginx-backend-not-found.conf /etc/nginx/extra-conf.d/backend-not-found.conf

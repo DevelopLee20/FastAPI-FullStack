@@ -2,13 +2,13 @@ services:
   # PostgreSQL Database - Development
   postgres:
     image: postgres:15-alpine
-    container_name: ${PROJECT_NAME:-fastapi-fullstack}-postgres-dev
+    container_name: ${PROJECT_NAME}-postgres-dev
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgre_dev_user}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgre_dev_password_123}
-      POSTGRES_DB: ${POSTGRES_DB:-postgre_dev_db}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "${POSTGRES_PORT}:5432"
     volumes:
       - postgres_dev_data:/var/lib/postgresql/data
       # 개발용 초기화 스크립트 (옵션)
@@ -16,7 +16,7 @@ services:
     networks:
       - nara-network-dev
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgre_dev_user} -d ${POSTGRES_DB:-postgre_dev_db}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -24,10 +24,10 @@ services:
   # Redis Cache - Development
   redis:
     image: redis:7-alpine
-    container_name: ${PROJECT_NAME:-fastapi-fullstack}-redis-dev
+    container_name: ${PROJECT_NAME}-redis-dev
     command: redis-server --appendonly yes --loglevel notice
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - "${REDIS_PORT}:6379"
     volumes:
       - redis_dev_data:/data
     networks:
@@ -44,40 +44,45 @@ services:
       context: ./backend
       dockerfile: Dockerfile.dev
       target: development
-    container_name: ${PROJECT_NAME:-fastapi-fullstack}-backend-dev
+    container_name: ${PROJECT_NAME}-backend-dev
     environment:
       # Mode & Project Info
-      MODE: ${MODE:-dev}
-      PROJECT_NAME: ${PROJECT_NAME:-fastapi-fullstack}
-      APP_TITLE: ${APP_TITLE:-FullSTack API}
-      APP_DESCRIPTION: ${APP_DESCRIPTION:-풀스택 템플릿 API}
-      APP_VERSION: ${APP_VERSION:-1.0.0}
+      MODE: ${MODE}
+      PROJECT_NAME: ${PROJECT_NAME}
+      APP_TITLE: ${APP_TITLE}
+      APP_DESCRIPTION: ${APP_DESCRIPTION}
+      APP_VERSION: ${APP_VERSION}
       # PostgreSQL Database
-      POSTGRES_USER: ${POSTGRES_USER:-postgre_dev_user}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgre_dev_password_123}
-      POSTGRES_DB: ${POSTGRES_DB:-postgre_dev_db}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
       # Redis
       REDIS_HOST: redis
       REDIS_PORT: 6379
       # App settings
-      APP_ENV: ${APP_ENV:-development}
-      DEBUG: ${DEBUG:-true}
-      LOG_LEVEL: ${LOG_LEVEL:-debug}
-      SECRET_KEY: ${SECRET_KEY:-dev-secret-key-for-development-only-do-not-use-in-production}
+      APP_ENV: ${APP_ENV}
+      DEBUG: ${DEBUG}
+      LOG_LEVEL: ${LOG_LEVEL}
+      SECRET_KEY: ${SECRET_KEY}
       # CORS
-      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
-      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-*}
+      CORS_ORIGINS: ${CORS_ORIGINS}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS}
+      # API & Auth
+      API_V1_STR: ${API_V1_STR}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
+      FIRST_SUPERUSER: ${FIRST_SUPERUSER}
+      FIRST_SUPERUSER_PASSWORD: ${FIRST_SUPERUSER_PASSWORD}
       # Frontend
-      REACT_APP_API_URL: ${REACT_APP_API_URL:-http://localhost:8000}
-      NODE_ENV: ${NODE_ENV:-development}
+      VITE_API_URL: ${VITE_API_URL}
+      NODE_ENV: ${NODE_ENV}
       # Hot reload
       RELOAD: "true"
     ports:
-      - "${BACKEND_PORT:-8000}:8000"
+      - "${BACKEND_PORT}:8000"
       # 디버깅 포트 (옵션)
-      - "${DEBUG_PORT:-5678}:5678"
+      - "${DEBUG_PORT}:5678"
     volumes:
       # .env 파일 마운트
       - ./.env:/app/.env:ro
@@ -110,14 +115,16 @@ services:
       context: ./frontend/app
       dockerfile: Dockerfile.dev
       target: development
-    container_name: ${PROJECT_NAME:-fastapi-fullstack}-frontend-dev
+    container_name: ${PROJECT_NAME}-frontend-dev
     environment:
-      - REACT_APP_API_URL=${REACT_APP_API_URL:-http://localhost:8000}
-      - NODE_ENV=${NODE_ENV:-development}
+      - VITE_API_URL=${VITE_API_URL}
+      - NODE_ENV=${NODE_ENV}
+      - FIRST_SUPERUSER=${FIRST_SUPERUSER}
+      - FIRST_SUPERUSER_PASSWORD=${FIRST_SUPERUSER_PASSWORD}
       - CHOKIDAR_USEPOLLING=true
       - WATCHPACK_POLLING=true
     ports:
-      - "${FRONTEND_PORT:-3000}:3000"
+      - "${FRONTEND_PORT}:3000"
     volumes:
       # 소스 코드 실시간 반영
       - ./frontend/app:/app
@@ -126,7 +133,7 @@ services:
       - backend
     networks:
       - nara-network-dev
-    command: npm start
+    command: npm run dev -- --host 0.0.0.0 --port 3000
     stdin_open: true
     tty: true
     healthcheck:
@@ -139,7 +146,7 @@ services:
   # Redis Commander - 개발용 Redis GUI (옵션)
   redis-commander:
     image: rediscommander/redis-commander:latest
-    container_name: ${PROJECT_NAME:-fastapi-fullstack}-redis-commander
+    container_name: ${PROJECT_NAME}-redis-commander
     environment:
       - REDIS_HOSTS=local:redis:6379
     ports:
@@ -154,10 +161,10 @@ services:
   # pgAdmin - 개발용 PostgreSQL GUI (옵션)
   pgadmin:
     image: dpage/pgadmin4:latest
-    container_name: ${PROJECT_NAME:-fastapi-fullstack}-pgadmin
+    container_name: ${PROJECT_NAME}-pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@nara.local}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
       PGADMIN_CONFIG_SERVER_MODE: 'False'
     ports:
       - "5050:80"
@@ -173,7 +180,7 @@ services:
 networks:
   nara-network-dev:
     driver: bridge
-    name: ${PROJECT_NAME:-fastapi-fullstack}-network-dev
+    name: ${PROJECT_NAME}-network-dev
 
 volumes:
   postgres_dev_data:

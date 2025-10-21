@@ -18,15 +18,11 @@ class RedisDB:
         if cls._instance is None:
             for attempt in range(1, cls.MAX_RETRIES + 1):
                 try:
-                    # Redis 비밀번호 설정 확인
-                    redis_password = getattr(settings, "REDIS_PASSWORD", None)
-
                     cls._instance = redis.Redis(
                         host=settings.REDIS_HOST
                         if hasattr(settings, "REDIS_HOST")
                         else "redis",
                         port=settings.REDIS_PORT,
-                        password=redis_password if redis_password else None,
                         db=0,  # 환경변수 전용 DB
                         decode_responses=True,  # 문자열 자동 디코딩
                         socket_connect_timeout=5,

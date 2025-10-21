@@ -17,6 +17,7 @@ class Settings(BaseSettings):
         case_sensitive=False,
         extra="ignore",  # 추가 필드 무시
     )
+
     # 애플리케이션 기본 설정
     MODE: str
     PROJECT_NAME: str
@@ -25,41 +26,31 @@ class Settings(BaseSettings):
     APP_VERSION: str
 
     # CORS 설정
-    CORS_ORIGINS: str = "*"
-    ALLOWED_HOSTS: str = "*"
+    CORS_ORIGINS: str
 
-    # 서버 포트 설정
-    WEB_PORT: int = 8000
-    DOCKER_PORT: int = 8000
-    BACKEND_PORT: int = 8000
-    FRONTEND_PORT: int = 3000
-
-    # Gunicorn 설정
-    TIMEOUT: int = 120
-    KEEP_ALIVE: int = 5
-    WORKERS: int = 1
+    # 서버 포트 설정 (uvicorn 실행 시 사용)
+    BACKEND_PORT: int
+    DEBUG: bool
 
     # PostgreSQL Database Configuration
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
     POSTGRES_DB: str
     POSTGRES_HOST: str
-    POSTGRES_PORT: int = 5432
+    POSTGRES_PORT: int
 
     # Redis Configuration
-    REDIS_HOST: str = "redis"
-    REDIS_PORT: int = 6379
-    REDIS_PASSWORD: str = ""  # 빈 문자열이면 비밀번호 없음
+    REDIS_HOST: str
+    REDIS_PORT: int
 
-    # Backend Configuration
-    APP_ENV: str = "development"
-    DEBUG: bool = True
-    LOG_LEVEL: str = "info"
+    # Security Configuration
     SECRET_KEY: str
 
-    # Frontend Configuration
-    REACT_APP_API_URL: str = "http://localhost:8000"
-    NODE_ENV: str = "development"
+    # API & Auth Configuration
+    API_V1_STR: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
+    FIRST_SUPERUSER: str
+    FIRST_SUPERUSER_PASSWORD: str
 
     @property
     def DATABASE_URL(self) -> str:

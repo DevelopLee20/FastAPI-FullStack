@@ -29,12 +29,6 @@ RUN pipenv lock && \
 # Production stage
 FROM python:3.12-bullseye AS production
 
-# 빌드 인자
-ARG BUILD_DATE
-ARG VERSION
-LABEL build_date=$BUILD_DATE
-LABEL version=$VERSION
-
 WORKDIR /app
 
 # 환경 변수 설정

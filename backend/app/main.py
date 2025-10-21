@@ -1,6 +1,6 @@
 """
 FastAPI Main Application
-환경변수 관리 시스템 통합
+환경변수 및 인증 기능 통합
 """
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,29 +8,33 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.env import settings
 from app.core.lifecycle import lifespan
 from app.routers import env_router
+from app.routers import login_router
+from app.routers import signup_router
+from app.routers import user_router
 
 
-# FastAPI 앱 생성
 app = FastAPI(
     title=settings.APP_TITLE,
     description=settings.APP_DESCRIPTION,
     version=settings.APP_VERSION,
     lifespan=lifespan,
+    openapi_url=f"{settings.API_V1_STR}/openapi.json",
 )
 
 
-# CORS 미들웨어 설정
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS.split(","),
+    allow_origins=settings.CORS_ORIGINS_LIST,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 
-# 라우터 등록
 app.include_router(env_router.router)
+app.include_router(login_router.router, prefix=settings.API_V1_STR)
+app.include_router(signup_router.router, prefix=settings.API_V1_STR)
+app.include_router(user_router.router, prefix=settings.API_V1_STR)
 
 
 # Health Check 엔드포인트
@@ -53,6 +57,7 @@ async def root():
         "docs": "/docs",
         "health": "/health",
         "env_api": "/api/env",
+        "auth_api": f"{settings.API_V1_STR}/login/access-token",
     }
 
 
