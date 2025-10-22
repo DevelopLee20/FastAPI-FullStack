@@ -14,7 +14,8 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as LayoutRouteImport } from './routes/_layout'
 import { Route as LayoutIndexRouteImport } from './routes/_layout/index'
 import { Route as LayoutSettingsRouteImport } from './routes/_layout/settings'
-import { Route as LayoutAdminRouteImport } from './routes/_layout/admin'
+import { Route as LayoutAdminIndexRouteImport } from './routes/_layout/admin/index'
+import { Route as LayoutAdminEnvRouteImport } from './routes/_layout/admin/env'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -40,48 +41,57 @@ const LayoutSettingsRoute = LayoutSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => LayoutRoute,
 } as any)
-const LayoutAdminRoute = LayoutAdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
+const LayoutAdminIndexRoute = LayoutAdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => LayoutRoute,
+} as any)
+const LayoutAdminEnvRoute = LayoutAdminEnvRouteImport.update({
+  id: '/admin/env',
+  path: '/admin/env',
   getParentRoute: () => LayoutRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
-  '/admin': typeof LayoutAdminRoute
   '/settings': typeof LayoutSettingsRoute
   '/': typeof LayoutIndexRoute
+  '/admin/env': typeof LayoutAdminEnvRoute
+  '/admin': typeof LayoutAdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
-  '/admin': typeof LayoutAdminRoute
   '/settings': typeof LayoutSettingsRoute
   '/': typeof LayoutIndexRoute
+  '/admin/env': typeof LayoutAdminEnvRoute
+  '/admin': typeof LayoutAdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_layout': typeof LayoutRouteWithChildren
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
-  '/_layout/admin': typeof LayoutAdminRoute
   '/_layout/settings': typeof LayoutSettingsRoute
   '/_layout/': typeof LayoutIndexRoute
+  '/_layout/admin/env': typeof LayoutAdminEnvRoute
+  '/_layout/admin/': typeof LayoutAdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/login' | '/signup' | '/admin' | '/settings' | '/'
+  fullPaths: '/login' | '/signup' | '/settings' | '/' | '/admin/env' | '/admin'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/signup' | '/admin' | '/settings' | '/'
+  to: '/login' | '/signup' | '/settings' | '/' | '/admin/env' | '/admin'
   id:
     | '__root__'
     | '/_layout'
     | '/login'
     | '/signup'
-    | '/_layout/admin'
     | '/_layout/settings'
     | '/_layout/'
+    | '/_layout/admin/env'
+    | '/_layout/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -127,26 +137,35 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutSettingsRouteImport
       parentRoute: typeof LayoutRoute
     }
-    '/_layout/admin': {
-      id: '/_layout/admin'
+    '/_layout/admin/': {
+      id: '/_layout/admin/'
       path: '/admin'
       fullPath: '/admin'
-      preLoaderRoute: typeof LayoutAdminRouteImport
+      preLoaderRoute: typeof LayoutAdminIndexRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/admin/env': {
+      id: '/_layout/admin/env'
+      path: '/admin/env'
+      fullPath: '/admin/env'
+      preLoaderRoute: typeof LayoutAdminEnvRouteImport
       parentRoute: typeof LayoutRoute
     }
   }
 }
 
 interface LayoutRouteChildren {
-  LayoutAdminRoute: typeof LayoutAdminRoute
   LayoutSettingsRoute: typeof LayoutSettingsRoute
   LayoutIndexRoute: typeof LayoutIndexRoute
+  LayoutAdminEnvRoute: typeof LayoutAdminEnvRoute
+  LayoutAdminIndexRoute: typeof LayoutAdminIndexRoute
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
-  LayoutAdminRoute: LayoutAdminRoute,
   LayoutSettingsRoute: LayoutSettingsRoute,
   LayoutIndexRoute: LayoutIndexRoute,
+  LayoutAdminEnvRoute: LayoutAdminEnvRoute,
+  LayoutAdminIndexRoute: LayoutAdminIndexRoute,
 }
 
 const LayoutRouteWithChildren =

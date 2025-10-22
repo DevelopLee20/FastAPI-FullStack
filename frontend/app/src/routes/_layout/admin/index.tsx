@@ -30,7 +30,7 @@ function getUsersQueryOptions({ page }: { page: number }) {
   }
 }
 
-export const Route = createFileRoute("/_layout/admin")({
+export const Route = createFileRoute("/_layout/admin/")({
   component: Admin,
   validateSearch: (search) => usersSearchSchema.parse(search),
 })
@@ -135,7 +135,7 @@ function Admin() {
 
   return (
     <Container maxW="full">
-      <Heading size="lg" pt={12}>
+      <Heading size="lg" pt={12} pb={6}>
         Users Management
       </Heading>
 

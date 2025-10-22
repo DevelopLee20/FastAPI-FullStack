@@ -6,6 +6,7 @@ from typing import Optional
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 
+from app.core.env import settings
 from app.models.env_model import EnvVariable
 from app.schemas.env_schema import EnvVariableCreate, EnvVariableUpdate
 from app.services.env_services.env_cache import EnvCacheService
@@ -50,12 +51,20 @@ class EnvVariableService:
 
     def get_all(self) -> list[EnvVariable]:
         """
-        모든 환경변수 조회
+        RUNTIME_ENV_KEYS에 정의된 환경변수만 조회
 
         Returns:
-            EnvVariable 리스트
+            EnvVariable 리스트 (RUNTIME_ENV_KEYS에 포함된 것만)
         """
-        return self.db.query(EnvVariable).all()
+        runtime_keys = settings.RUNTIME_ENV_KEYS_LIST
+        if not runtime_keys:
+            return []
+
+        return (
+            self.db.query(EnvVariable)
+            .filter(EnvVariable.key.in_(runtime_keys))
+            .all()
+        )
 
     def create(self, env_create: EnvVariableCreate) -> EnvVariable:
         """

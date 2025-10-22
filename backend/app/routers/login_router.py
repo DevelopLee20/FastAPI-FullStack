@@ -6,7 +6,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from app.core import security
 from app.db.postgre_db import CurrentUser, SessionDep
-from app.core.env import settings
+from app.core.runtime_env import get_access_token_expire_minutes
 from app.schemas.user_schema import Token, UserPublic
 from app.services.user_service import UserService
 
@@ -28,7 +28,8 @@ def login_access_token(
         raise HTTPException(status_code=400, detail="Incorrect username or password")
     if not user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
-    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_minutes = get_access_token_expire_minutes()
+    access_token_expires = timedelta(minutes=access_token_minutes)
     return Token(
         access_token=security.create_access_token(
             user.id, expires_delta=access_token_expires

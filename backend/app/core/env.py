@@ -52,6 +52,9 @@ class Settings(BaseSettings):
     FIRST_SUPERUSER: str
     FIRST_SUPERUSER_PASSWORD: str
 
+    # Runtime-managed environment variables (comma separated keys)
+    RUNTIME_ENV_KEYS: str = "CORS_ORIGINS,ACCESS_TOKEN_EXPIRE_MINUTES"
+
     @property
     def DATABASE_URL(self) -> str:
         """
@@ -65,6 +68,19 @@ class Settings(BaseSettings):
         CORS origins를 리스트로 변환
         """
         return [origin.strip() for origin in self.CORS_ORIGINS.split(",")]
+
+    @property
+    def RUNTIME_ENV_KEYS_LIST(self) -> List[str]:
+        """
+        런타임에서 DB/Redis로 관리할 환경변수 키 목록 반환
+        """
+        if not self.RUNTIME_ENV_KEYS:
+            return []
+        return [
+            key.strip()
+            for key in self.RUNTIME_ENV_KEYS.split(",")
+            if key and key.strip()
+        ]
 
 
 settings = Settings()

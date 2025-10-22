@@ -5,7 +5,7 @@ Environment Variables API Router
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.db.postgre_db import depend_get_db
+from app.db.postgre_db import depend_get_db, get_current_active_superuser
 from app.schemas.env_schema import (
     EnvVariableCreate,
     EnvVariableUpdate,
@@ -18,6 +18,7 @@ from app.services.env_services.env_variable import EnvVariableService
 router = APIRouter(
     prefix="/api/env",
     tags=["Environment Variables"],
+    dependencies=[Depends(get_current_active_superuser)],
 )
 
 

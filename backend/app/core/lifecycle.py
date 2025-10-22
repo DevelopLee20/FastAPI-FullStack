@@ -12,6 +12,7 @@ from app.db.postgre_db import PostgreDB
 from app.db.redis_db import RedisDB
 from app.services.env_services.env_variable import EnvVariableService
 from app.services.env_services.env_sync import EnvSyncService
+from app.core.runtime_env import ensure_core_env_synced
 
 # 로깅 설정
 setup_logging()
@@ -25,7 +26,8 @@ async def lifespan(app: FastAPI):
     Startup:
         1. DB 테이블 초기화
         2. .env 파일 -> PostgreSQL 동기화 (초기 설정)
-        3. PostgreSQL -> Redis 동기화
+        3. env.py 핵심 설정 -> PostgreSQL/Redis 동기화
+        4. PostgreSQL -> Redis 전체 동기화
 
     Shutdown:
         1. PostgreSQL -> .env 백업
@@ -39,12 +41,12 @@ async def lifespan(app: FastAPI):
 
     try:
         # 1. DB 테이블 초기화
-        logging.info("\n[1/3] Initializing database tables...")
+        logging.info("\n[1/4] Initializing database tables...")
         PostgreDB.init_db()
         logging.info("✓ Database tables initialized")
 
         # 2. .env 파일 -> PostgreSQL 동기화
-        logging.info("\n[2/3] Syncing .env to PostgreSQL...")
+        logging.info("\n[2/4] Syncing .env to PostgreSQL...")
         db = PostgreDB.get_session()
         try:
             env_service = EnvVariableService(db)
@@ -56,16 +58,21 @@ async def lifespan(app: FastAPI):
         finally:
             db.close()
 
-        # 3. PostgreSQL -> Redis 동기화
-        logging.info("\n[3/3] Syncing PostgreSQL to Redis...")
+        # 3. env.py 설정 -> PostgreSQL/Redis 동기화
+        logging.info("\n[3/4] Syncing runtime settings to PostgreSQL & Redis...")
+        ensure_core_env_synced(force=True)
+        logging.info("✓ Runtime settings synced")
+
+        # 4. PostgreSQL -> Redis 동기화
+        logging.info("\n[4/4] Syncing PostgreSQL to Redis...")
         db = PostgreDB.get_session()
         try:
             env_service = EnvVariableService(db)
-            synced_count = env_service.sync_to_redis()
-            if synced_count > 0:
-                logging.info(f"✓ Synced {synced_count} variables to Redis")
+            synced = env_service.sync_to_redis()
+            if synced:
+                logging.info("✓ Redis cache refreshed from PostgreSQL")
             else:
-                logging.warning("⚠ No variables were synced to Redis")
+                logging.warning("⚠ Redis cache sync skipped or failed")
         finally:
             db.close()
 

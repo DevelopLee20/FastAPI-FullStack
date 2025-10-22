@@ -5,14 +5,28 @@ import { z } from "zod"
 import Appearance from "@/components/UserSettings/Appearance"
 import ChangePassword from "@/components/UserSettings/ChangePassword"
 import DeleteAccount from "@/components/UserSettings/DeleteAccount"
+import EnvironmentVariables from "@/components/UserSettings/EnvironmentVariables"
 import UserInformation from "@/components/UserSettings/UserInformation"
 import useAuth from "@/hooks/useAuth"
 
-const tabsConfig = [
+const baseTabs = [
   { value: "my-profile", title: "My profile", component: UserInformation },
   { value: "password", title: "Password", component: ChangePassword },
   { value: "appearance", title: "Appearance", component: Appearance },
-  { value: "danger-zone", title: "Danger zone", component: DeleteAccount },
+]
+
+const dangerTab = {
+  value: "danger-zone",
+  title: "Danger zone",
+  component: DeleteAccount,
+}
+
+const adminTabs = [
+  {
+    value: "environment",
+    title: "Environment variables",
+    component: EnvironmentVariables,
+  },
 ]
 
 const settingsSearchSchema = z.object({ tab: z.string().optional() })
@@ -25,8 +39,8 @@ export const Route = createFileRoute("/_layout/settings")({
 function UserSettings() {
   const { user: currentUser } = useAuth()
   const finalTabs = currentUser?.is_superuser
-    ? tabsConfig.slice(0, 3)
-    : tabsConfig
+    ? [...baseTabs, ...adminTabs]
+    : [...baseTabs, dangerTab]
   const { tab } = Route.useSearch()
   const defaultTab =
     tab && finalTabs.find((t) => t.value === tab) ? tab : "my-profile"
