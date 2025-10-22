@@ -23,7 +23,7 @@ function Navbar() {
     >
       <Link to={homePath}>
         <Text fontWeight="bold" px={2}>
-          Dashboard
+          대시보드
         </Text>
       </Link>
       <Flex gap={2} alignItems="center">

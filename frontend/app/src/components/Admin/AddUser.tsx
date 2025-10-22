@@ -60,7 +60,7 @@ const AddUser = () => {
     mutationFn: (data: UserCreate) =>
       UsersService.createUser({ requestBody: data }),
     onSuccess: () => {
-      showSuccessToast("User created successfully.")
+      showSuccessToast("사용자가 성공적으로 생성되었습니다.")
       reset()
       setIsOpen(false)
     },
@@ -86,31 +86,31 @@ const AddUser = () => {
       <DialogTrigger asChild>
         <Button value="add-user" my={4}>
           <FaPlus fontSize="16px" />
-          Add User
+          사용자 추가
         </Button>
       </DialogTrigger>
       <DialogContent>
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
-            <DialogTitle>Add User</DialogTitle>
+            <DialogTitle>사용자 추가</DialogTitle>
           </DialogHeader>
           <DialogBody>
             <Text mb={4}>
-              Fill in the form below to add a new user to the system.
+              새 사용자를 등록하려면 아래 양식을 작성해주세요.
             </Text>
             <VStack gap={4}>
               <Field
                 required
                 invalid={!!errors.username}
                 errorText={errors.username?.message}
-                label="Username"
+                label="사용자명"
               >
                 <Input
                   {...register("username", {
-                    required: "Username is required",
-                    minLength: { value: 3, message: "At least 3 characters" },
+                    required: "사용자명을 입력해주세요",
+                    minLength: { value: 3, message: "최소 3자 이상 입력해주세요" },
                   })}
-                  placeholder="Username"
+                  placeholder="사용자명"
                   type="text"
                 />
               </Field>
@@ -119,13 +119,13 @@ const AddUser = () => {
                 required
                 invalid={!!errors.nickname}
                 errorText={errors.nickname?.message}
-                label="Nickname"
+                label="닉네임"
               >
                 <Input
                   {...register("nickname", {
-                    required: "Nickname is required",
+                    required: "닉네임을 입력해주세요",
                   })}
-                  placeholder="Nickname"
+                  placeholder="닉네임"
                   type="text"
                 />
               </Field>
@@ -134,14 +134,14 @@ const AddUser = () => {
                 required
                 invalid={!!errors.email}
                 errorText={errors.email?.message}
-                label="Email"
+                label="이메일"
               >
                 <Input
                   {...register("email", {
-                    required: "Email is required",
+                    required: "이메일을 입력해주세요",
                     pattern: emailPattern,
                   })}
-                  placeholder="Email"
+                  placeholder="이메일"
                   type="email"
                 />
               </Field>
@@ -150,17 +150,17 @@ const AddUser = () => {
                 required
                 invalid={!!errors.password}
                 errorText={errors.password?.message}
-                label="Set Password"
+                label="비밀번호 설정"
               >
                 <Input
                   {...register("password", {
-                    required: "Password is required",
+                    required: "비밀번호를 입력해주세요",
                     minLength: {
                       value: 8,
-                      message: "Password must be at least 8 characters",
+                      message: "비밀번호는 8자 이상이어야 합니다",
                     },
                   })}
-                  placeholder="Password"
+                  placeholder="비밀번호"
                   type="password"
                 />
               </Field>
@@ -169,16 +169,16 @@ const AddUser = () => {
                 required
                 invalid={!!errors.confirm_password}
                 errorText={errors.confirm_password?.message}
-                label="Confirm Password"
+                label="비밀번호 확인"
               >
                 <Input
                   {...register("confirm_password", {
-                    required: "Please confirm your password",
+                    required: "비밀번호를 다시 입력해주세요",
                     validate: (value) =>
                       value === getValues().password ||
-                      "The passwords do not match",
+                      "비밀번호가 일치하지 않습니다",
                   })}
-                  placeholder="Password"
+                  placeholder="비밀번호 확인"
                   type="password"
                 />
               </Field>
@@ -194,7 +194,7 @@ const AddUser = () => {
                       checked={field.value}
                       onCheckedChange={({ checked }) => field.onChange(checked)}
                     >
-                      Is superuser?
+                      관리자 권한 부여
                     </Checkbox>
                   </Field>
                 )}
@@ -208,7 +208,7 @@ const AddUser = () => {
                       checked={field.value}
                       onCheckedChange={({ checked }) => field.onChange(checked)}
                     >
-                      Is active?
+                      활성 사용자
                     </Checkbox>
                   </Field>
                 )}
@@ -223,7 +223,7 @@ const AddUser = () => {
                 colorPalette="gray"
                 disabled={isSubmitting}
               >
-                Cancel
+                취소
               </Button>
             </DialogActionTrigger>
             <Button
@@ -232,7 +232,7 @@ const AddUser = () => {
               disabled={!isValid}
               loading={isSubmitting}
             >
-              Save
+              저장
             </Button>
           </DialogFooter>
         </form>

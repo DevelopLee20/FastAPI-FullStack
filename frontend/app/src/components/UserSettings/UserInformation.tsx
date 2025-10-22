@@ -50,7 +50,7 @@ const UserInformation = () => {
     mutationFn: (data: UserUpdateMe) =>
       UsersService.updateUserMe({ requestBody: data }),
     onSuccess: () => {
-      showSuccessToast("User updated successfully.")
+      showSuccessToast("사용자 정보가 성공적으로 업데이트되었습니다.")
     },
     onError: (err: ApiError) => {
       handleError(err)
@@ -72,14 +72,14 @@ const UserInformation = () => {
   return (
     <Container maxW="full">
       <Heading size="sm" py={4}>
-        User Information
+        사용자 정보
       </Heading>
       <Box
         w={{ sm: "full", md: "sm" }}
         as="form"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <Field label="Nickname">
+        <Field label="닉네임">
           {editMode ? (
             <Input
               {...register("nickname", { maxLength: 30 })}
@@ -94,20 +94,20 @@ const UserInformation = () => {
               truncate
               maxW="sm"
             >
-              {(currentUser as any)?.nickname || "N/A"}
+              {(currentUser as any)?.nickname || "없음"}
             </Text>
           )}
         </Field>
         <Field
           mt={4}
-          label="Email"
+          label="이메일"
           invalid={!!errors.email}
           errorText={errors.email?.message}
         >
           {editMode ? (
             <Input
               {...register("email", {
-                required: "Email is required",
+                required: "이메일을 입력해주세요",
                 pattern: emailPattern,
               })}
               type="email"
@@ -127,7 +127,7 @@ const UserInformation = () => {
             loading={editMode ? isSubmitting : false}
             disabled={editMode ? !isDirty || !getValues("email") : false}
           >
-            {editMode ? "Save" : "Edit"}
+            {editMode ? "저장" : "수정"}
           </Button>
           {editMode && (
             <Button
@@ -136,7 +136,7 @@ const UserInformation = () => {
               onClick={onCancel}
               disabled={isSubmitting}
             >
-              Cancel
+              취소
             </Button>
           )}
         </Flex>

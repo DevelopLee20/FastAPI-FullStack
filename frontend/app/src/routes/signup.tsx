@@ -66,16 +66,16 @@ function SignUp() {
         centerContent
       >
         <Heading size="lg" textAlign="center" mb={4}>
-          Create account
+          회원가입
         </Heading>
         <Field invalid={!!errors.username} errorText={errors.username?.message}>
           <InputGroup w="100%" startElement={<FiUser />}>
             <Input
               {...register("username", {
-                required: "Username is required",
-                minLength: { value: 3, message: "At least 3 characters" },
+                required: "사용자명을 입력해주세요",
+                minLength: { value: 3, message: "최소 3자 이상 입력해주세요" },
               })}
-              placeholder="Username"
+              placeholder="사용자명"
               type="text"
             />
           </InputGroup>
@@ -84,8 +84,8 @@ function SignUp() {
         <Field invalid={!!errors.nickname} errorText={errors.nickname?.message}>
           <InputGroup w="100%" startElement={<FiAtSign />}>
             <Input
-              {...register("nickname", { required: "Nickname is required" })}
-              placeholder="Nickname"
+              {...register("nickname", { required: "닉네임을 입력해주세요" })}
+              placeholder="닉네임"
               type="text"
             />
           </InputGroup>
@@ -95,10 +95,10 @@ function SignUp() {
           <InputGroup w="100%" startElement={<FiAtSign />}>
             <Input
               {...register("email", {
-                required: "Email is required",
+                required: "이메일을 입력해주세요",
                 pattern: emailPattern,
               })}
-              placeholder="Email"
+              placeholder="이메일"
               type="email"
             />
           </InputGroup>
@@ -107,23 +107,23 @@ function SignUp() {
           type="password"
           startElement={<FiLock />}
           {...register("password", passwordRules())}
-          placeholder="Password"
+          placeholder="비밀번호"
           errors={errors}
         />
         <PasswordInput
           type="confirm_password"
           startElement={<FiLock />}
           {...register("confirm_password", confirmPasswordRules(getValues))}
-          placeholder="Confirm Password"
+          placeholder="비밀번호 확인"
           errors={errors}
         />
         <Button variant="solid" type="submit" loading={isSubmitting}>
-          Sign Up
+          회원가입
         </Button>
         <Text>
-          Already have an account?{" "}
+          이미 계정이 있으신가요?{" "}
           <RouterLink to="/login" className="main-link">
-            Log In
+            로그인
           </RouterLink>
         </Text>
       </Container>

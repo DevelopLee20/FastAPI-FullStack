@@ -26,7 +26,7 @@ function AdminEnvironmentVariables() {
   return (
     <Container maxW="full">
       <Heading size="lg" pt={12} pb={6}>
-        Environment Variables Management
+        환경 변수 관리
       </Heading>
       <EnvironmentVariables />
     </Container>

@@ -7,12 +7,12 @@ import type { IconType } from "react-icons/lib"
 import type { UserPublic } from "@/client"
 
 const baseItems: Item[] = [
-  { icon: FiSettings, title: "User Settings", path: "/settings" },
+  { icon: FiSettings, title: "사용자 설정", path: "/settings" },
 ]
 
 const adminItems: Item[] = [
-  { icon: FiUsers, title: "User Management", path: "/admin" },
-  { icon: FiDatabase, title: "Environment Variables", path: "/admin/env" },
+  { icon: FiUsers, title: "사용자 관리", path: "/admin" },
+  { icon: FiDatabase, title: "환경 변수", path: "/admin/env" },
 ]
 
 interface SidebarItemsProps {
@@ -54,7 +54,7 @@ const SidebarItems = ({ onClose }: SidebarItemsProps) => {
   return (
     <>
       <Text fontSize="xs" px={4} py={2} fontWeight="bold">
-        Menu
+        관리자 메뉴
       </Text>
       <Box>{listItems}</Box>
     </>

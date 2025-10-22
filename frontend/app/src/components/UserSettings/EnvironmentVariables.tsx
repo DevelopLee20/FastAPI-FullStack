@@ -46,7 +46,7 @@ const EnvironmentVariables = () => {
         },
       }),
     onSuccess: () => {
-      showSuccessToast("Environment variable updated.")
+      showSuccessToast("환경 변수가 성공적으로 업데이트되었습니다.")
       setEditingKey(null)
     },
     onError: (err: ApiError) => {
@@ -91,25 +91,24 @@ const EnvironmentVariables = () => {
       <VStack align="stretch" spacing={6}>
         <Box>
           <Heading size="sm" py={4}>
-            Environment Variables
+            환경 변수
           </Heading>
           <Text color="fg.muted">
-            View and update runtime environment variables stored in PostgreSQL
-            and cached in Redis.
+            PostgreSQL에 저장되고 Redis에 캐시된 런타임 환경 변수를 조회하고 수정하세요.
           </Text>
         </Box>
 
         {envVariables.length === 0 ? (
-          <Text color="fg.muted">No environment variables found.</Text>
+          <Text color="fg.muted">환경 변수가 없습니다.</Text>
         ) : (
           <Table.Root variant="simple">
             <Table.Header>
               <Table.Row>
-                <Table.ColumnHeader width="20%">Key</Table.ColumnHeader>
-                <Table.ColumnHeader width="35%">Value</Table.ColumnHeader>
-                <Table.ColumnHeader>Description</Table.ColumnHeader>
-                <Table.ColumnHeader width="15%" textAlign="right">
-                  Actions
+                <Table.ColumnHeader width="20%">키</Table.ColumnHeader>
+                <Table.ColumnHeader width="35%">값</Table.ColumnHeader>
+                <Table.ColumnHeader>설명</Table.ColumnHeader>
+                <Table.ColumnHeader width="15%" textAlign="center">
+                  작업
                 </Table.ColumnHeader>
               </Table.Row>
             </Table.Header>
@@ -146,7 +145,7 @@ const EnvironmentVariables = () => {
                       )}
                     </Table.Cell>
                     <Table.Cell>
-                      <Flex justify="flex-end" gap={2}>
+                      <Flex justify="center" gap={2}>
                         {isEditing ? (
                           <>
                             <Button
@@ -155,7 +154,7 @@ const EnvironmentVariables = () => {
                               onClick={saveEdit}
                               loading={mutation.isPending}
                             >
-                              Save
+                              저장
                             </Button>
                             <Button
                               size="sm"
@@ -164,7 +163,7 @@ const EnvironmentVariables = () => {
                               onClick={cancelEdit}
                               disabled={mutation.isPending}
                             >
-                              Cancel
+                              취소
                             </Button>
                           </>
                         ) : (
@@ -173,7 +172,7 @@ const EnvironmentVariables = () => {
                             variant="subtle"
                             onClick={() => startEdit(envVar)}
                           >
-                            Edit
+                            수정
                           </Button>
                         )}
                       </Flex>

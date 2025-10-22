@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "FastAPI 앱",
+  "name": "FastAPI 풀스택 샘플",
   "icons": [
     {
       "src": "favicon.ico",

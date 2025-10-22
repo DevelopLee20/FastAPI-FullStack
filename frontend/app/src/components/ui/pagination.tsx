@@ -196,11 +196,11 @@ export const PaginationPageText = React.forwardRef<
   const { page, totalPages, pageRange, count } = usePaginationContext()
   const content = React.useMemo(() => {
     if (format === "short") return `${page} / ${totalPages}`
-    if (format === "compact") return `${page} of ${totalPages}`
+    if (format === "compact") return `${page} / 총 ${totalPages}페이지`
     return `${pageRange.start + 1} - ${Math.min(
       pageRange.end,
       count,
-    )} of ${count}`
+    )} / 총 ${count}개`
   }, [format, page, totalPages, pageRange, count])
 
   return (

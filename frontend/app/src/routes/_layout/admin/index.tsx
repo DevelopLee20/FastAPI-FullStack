@@ -65,22 +65,22 @@ function UsersTable() {
       <Table.Root size={{ base: "sm", md: "md" }}>
         <Table.Header>
           <Table.Row>
-            <Table.ColumnHeader w="sm">Nickname</Table.ColumnHeader>
-            <Table.ColumnHeader w="sm">Email</Table.ColumnHeader>
-            <Table.ColumnHeader w="sm">Username</Table.ColumnHeader>
-            <Table.ColumnHeader w="sm">Role</Table.ColumnHeader>
-            <Table.ColumnHeader w="sm">Status</Table.ColumnHeader>
-            <Table.ColumnHeader w="sm">Actions</Table.ColumnHeader>
+            <Table.ColumnHeader w="sm">닉네임</Table.ColumnHeader>
+            <Table.ColumnHeader w="sm">이메일</Table.ColumnHeader>
+            <Table.ColumnHeader w="sm">사용자명</Table.ColumnHeader>
+            <Table.ColumnHeader w="sm">역할</Table.ColumnHeader>
+            <Table.ColumnHeader w="sm">상태</Table.ColumnHeader>
+            <Table.ColumnHeader w="sm">작업</Table.ColumnHeader>
           </Table.Row>
         </Table.Header>
         <Table.Body>
           {users?.map((user) => (
             <Table.Row key={user.id} opacity={isPlaceholderData ? 0.5 : 1}>
               <Table.Cell color={!user.nickname ? "gray" : "inherit"}>
-                {user.nickname || "N/A"}
+                {user.nickname || "없음"}
                 {currentUser?.id === user.id && (
                   <Badge ml="1" colorScheme="teal">
-                    You
+                    본인
                   </Badge>
                 )}
               </Table.Cell>
@@ -89,9 +89,9 @@ function UsersTable() {
               </Table.Cell>
               <Table.Cell>{(user as any).username}</Table.Cell>
               <Table.Cell>
-                {user.is_superuser ? "Superuser" : "User"}
+                {user.is_superuser ? "관리자" : "사용자"}
               </Table.Cell>
-              <Table.Cell>{user.is_active ? "Active" : "Inactive"}</Table.Cell>
+              <Table.Cell>{user.is_active ? "활성" : "비활성"}</Table.Cell>
               <Table.Cell>
                 <UserActionsMenu
                   user={user}
@@ -136,7 +136,7 @@ function Admin() {
   return (
     <Container maxW="full">
       <Heading size="lg" pt={12} pb={6}>
-        Users Management
+        사용자 관리
       </Heading>
 
       <AddUser />

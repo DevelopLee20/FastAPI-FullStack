@@ -29,7 +29,7 @@ const ChangePassword = () => {
     mutationFn: (data: UpdatePassword) =>
       UsersService.updatePasswordMe({ requestBody: data }),
     onSuccess: () => {
-      showSuccessToast("Password updated successfully.")
+      showSuccessToast("비밀번호가 성공적으로 변경되었습니다.")
       reset()
     },
     onError: (err: ApiError) => {
@@ -44,7 +44,7 @@ const ChangePassword = () => {
   return (
     <Container maxW="full">
       <Heading size="sm" py={4}>
-        Change Password
+        비밀번호 변경
       </Heading>
       <Box as="form" onSubmit={handleSubmit(onSubmit)}>
         <VStack gap={4} w={{ base: "100%", md: "sm" }}>
@@ -52,26 +52,26 @@ const ChangePassword = () => {
             type="current_password"
             startElement={<FiLock />}
             {...register("current_password", passwordRules())}
-            placeholder="Current Password"
+            placeholder="현재 비밀번호"
             errors={errors}
           />
           <PasswordInput
             type="new_password"
             startElement={<FiLock />}
             {...register("new_password", passwordRules())}
-            placeholder="New Password"
+            placeholder="새 비밀번호"
             errors={errors}
           />
           <PasswordInput
             type="confirm_password"
             startElement={<FiLock />}
             {...register("confirm_password", confirmPasswordRules(getValues))}
-            placeholder="Confirm Password"
+            placeholder="비밀번호 확인"
             errors={errors}
           />
         </VStack>
         <Button variant="solid" mt={4} type="submit" loading={isSubmitting}>
-          Save
+          저장
         </Button>
       </Box>
     </Container>

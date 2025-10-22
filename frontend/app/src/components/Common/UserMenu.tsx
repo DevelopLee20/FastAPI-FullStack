@@ -21,7 +21,7 @@ const UserMenu = () => {
           <MenuTrigger asChild p={2}>
             <Button data-testid="user-menu" variant="solid" maxW="sm" truncate>
               <FaUserAstronaut fontSize="18" />
-              <Text>{(user as any)?.nickname || user?.username || "User"}</Text>
+              <Text>{(user as any)?.nickname || user?.username || "사용자"}</Text>
             </Button>
           </MenuTrigger>
 
@@ -35,7 +35,7 @@ const UserMenu = () => {
                 style={{ cursor: "pointer" }}
               >
                 <FiUser fontSize="18px" />
-                <Box flex="1">My Profile</Box>
+                <Box flex="1">내 프로필</Box>
               </MenuItem>
             </Link>
 
@@ -47,7 +47,7 @@ const UserMenu = () => {
               style={{ cursor: "pointer" }}
             >
               <FiLogOut />
-              Log Out
+              로그아웃
             </MenuItem>
           </MenuContent>
         </MenuRoot>

@@ -65,7 +65,7 @@ function Login() {
       centerContent
     >
       <Heading size="lg" textAlign="center" mb={4}>
-        Sign in
+        로그인
       </Heading>
       <Field
         invalid={!!errors.username}
@@ -74,10 +74,10 @@ function Login() {
         <InputGroup w="100%" startElement={<FiUser />}>
           <Input
             {...register("username", {
-              required: "Username is required",
-              minLength: { value: 3, message: "At least 3 characters" },
+              required: "사용자명을 입력해주세요",
+              minLength: { value: 3, message: "최소 3자 이상 입력해주세요" },
             })}
-            placeholder="Username"
+            placeholder="사용자명"
             type="text"
           />
         </InputGroup>
@@ -86,17 +86,17 @@ function Login() {
         type="password"
         startElement={<FiLock />}
         {...register("password", passwordRules())}
-        placeholder="Password"
+        placeholder="비밀번호"
         errors={errors}
       />
       {/* Password recovery removed */}
       <Button variant="solid" type="submit" loading={isSubmitting} size="md">
-        Log In
+        로그인
       </Button>
       <Text>
-        Don't have an account?{" "}
+        계정이 없으신가요?{" "}
         <RouterLink to="/signup" className="main-link">
-          Sign Up
+          회원가입
         </RouterLink>
       </Text>
     </Container>

@@ -9,7 +9,7 @@ const Appearance = () => {
   return (
     <Container maxW="full">
       <Heading size="sm" py={4}>
-        Appearance
+        테마
       </Heading>
 
       <RadioGroup
@@ -18,9 +18,9 @@ const Appearance = () => {
         colorPalette="teal"
       >
         <Stack>
-          <Radio value="system">System</Radio>
-          <Radio value="light">Light Mode</Radio>
-          <Radio value="dark">Dark Mode</Radio>
+          <Radio value="system">시스템 설정</Radio>
+          <Radio value="light">라이트 모드</Radio>
+          <Radio value="dark">다크 모드</Radio>
         </Stack>
       </RadioGroup>
     </Container>

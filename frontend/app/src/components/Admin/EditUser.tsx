@@ -57,7 +57,7 @@ const EditUser = ({ user }: EditUserProps) => {
     mutationFn: (data: UserUpdateForm) =>
       UsersService.updateUser({ userId: user.id, requestBody: data }),
     onSuccess: () => {
-      showSuccessToast("User updated successfully.")
+      showSuccessToast("사용자 정보가 성공적으로 업데이트되었습니다.")
       reset()
       setIsOpen(false)
     },
@@ -86,38 +86,38 @@ const EditUser = ({ user }: EditUserProps) => {
       <DialogTrigger asChild>
         <Button variant="ghost" size="sm">
           <FaExchangeAlt fontSize="16px" />
-          Edit User
+          사용자 수정
         </Button>
       </DialogTrigger>
       <DialogContent>
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
-            <DialogTitle>Edit User</DialogTitle>
+            <DialogTitle>사용자 수정</DialogTitle>
           </DialogHeader>
           <DialogBody>
-            <Text mb={4}>Update the user details below.</Text>
+            <Text mb={4}>아래 정보를 수정한 뒤 저장하세요.</Text>
             <VStack gap={4}>
               <Field
                 invalid={!!errors.username}
                 errorText={errors.username?.message}
-                label="Username"
+                label="사용자명"
               >
                 <Input
                   {...register("username", {
-                    minLength: { value: 3, message: "At least 3 characters" },
+                    minLength: { value: 3, message: "최소 3자 이상 입력해주세요" },
                   })}
-                  placeholder="Username"
+                  placeholder="사용자명"
                   type="text"
                 />
               </Field>
               <Field
                 invalid={!!errors.nickname}
                 errorText={errors.nickname?.message}
-                label="Nickname"
+                label="닉네임"
               >
                 <Input
                   {...register("nickname")}
-                  placeholder="Nickname"
+                  placeholder="닉네임"
                   type="text"
                 />
               </Field>
@@ -125,14 +125,14 @@ const EditUser = ({ user }: EditUserProps) => {
                 required
                 invalid={!!errors.email}
                 errorText={errors.email?.message}
-                label="Email"
+                label="이메일"
               >
                 <Input
                   {...register("email", {
-                    required: "Email is required",
+                    required: "이메일을 입력해주세요",
                     pattern: emailPattern,
                   })}
-                  placeholder="Email"
+                  placeholder="이메일"
                   type="email"
                 />
               </Field>
@@ -140,16 +140,16 @@ const EditUser = ({ user }: EditUserProps) => {
               <Field
                 invalid={!!errors.password}
                 errorText={errors.password?.message}
-                label="Set Password"
+                label="비밀번호 설정"
               >
                 <Input
                   {...register("password", {
                     minLength: {
                       value: 8,
-                      message: "Password must be at least 8 characters",
+                      message: "비밀번호는 8자 이상이어야 합니다",
                     },
                   })}
-                  placeholder="Password"
+                  placeholder="비밀번호"
                   type="password"
                 />
               </Field>
@@ -157,15 +157,15 @@ const EditUser = ({ user }: EditUserProps) => {
               <Field
                 invalid={!!errors.confirm_password}
                 errorText={errors.confirm_password?.message}
-                label="Confirm Password"
+                label="비밀번호 확인"
               >
                 <Input
                   {...register("confirm_password", {
                     validate: (value) =>
                       value === getValues().password ||
-                      "The passwords do not match",
+                      "비밀번호가 일치하지 않습니다",
                   })}
-                  placeholder="Password"
+                  placeholder="비밀번호 확인"
                   type="password"
                 />
               </Field>
@@ -181,7 +181,7 @@ const EditUser = ({ user }: EditUserProps) => {
                       checked={field.value ?? false}
                       onCheckedChange={({ checked }) => field.onChange(checked)}
                     >
-                      Is superuser?
+                      관리자 권한 부여
                     </Checkbox>
                   </Field>
                 )}
@@ -195,7 +195,7 @@ const EditUser = ({ user }: EditUserProps) => {
                       checked={field.value ?? false}
                       onCheckedChange={({ checked }) => field.onChange(checked)}
                     >
-                      Is active?
+                      활성 사용자
                     </Checkbox>
                   </Field>
                 )}
@@ -210,11 +210,11 @@ const EditUser = ({ user }: EditUserProps) => {
                 colorPalette="gray"
                 disabled={isSubmitting}
               >
-                Cancel
+                취소
               </Button>
             </DialogActionTrigger>
             <Button variant="solid" type="submit" loading={isSubmitting}>
-              Save
+              저장
             </Button>
           </DialogFooter>
           <DialogCloseTrigger />

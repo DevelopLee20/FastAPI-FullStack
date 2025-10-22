@@ -22,18 +22,18 @@ const NotFound = () => {
             404
           </Text>
           <Text fontSize="2xl" fontWeight="bold" mb={2}>
-            Oops!
+            이런!
           </Text>
         </Flex>
       </Flex>
 
       <Text fontSize="lg" color="gray.600" mb={4} textAlign="center" zIndex={1}>
-        The page you are looking for was not found.
+        요청하신 페이지를 찾을 수 없습니다.
       </Text>
       <Center zIndex={1}>
         <Link to="/">
           <Button variant="solid" colorScheme="teal" mt={4} alignSelf="center">
-            Go Back
+            돌아가기
           </Button>
         </Link>
       </Center>

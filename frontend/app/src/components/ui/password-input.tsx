@@ -104,7 +104,7 @@ const VisibilityTrigger = forwardRef<HTMLButtonElement, ButtonProps>(
         size="sm"
         variant="ghost"
         height="calc(100% - {spacing.2})"
-        aria-label="Toggle password visibility"
+        aria-label="비밀번호 표시 전환"
         color="inherit"
         {...props}
       />
@@ -153,10 +153,10 @@ export const PasswordStrengthMeter = forwardRef<
 function getColorPalette(percent: number) {
   switch (true) {
     case percent < 33:
-      return { label: "Low", colorPalette: "red" }
+      return { label: "약함", colorPalette: "red" }
     case percent < 66:
-      return { label: "Medium", colorPalette: "orange" }
+      return { label: "보통", colorPalette: "orange" }
     default:
-      return { label: "High", colorPalette: "green" }
+      return { label: "강함", colorPalette: "green" }
   }
 }
