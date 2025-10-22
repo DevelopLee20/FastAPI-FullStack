@@ -89,7 +89,7 @@ const EnvironmentVariables = () => {
 
   return (
     <Container maxW="full">
-      <VStack align="stretch" spacing={6}>
+      <VStack align="stretch" gap={6}>
         <Box>
           <Heading size="sm" py={4}>
             환경 변수
@@ -103,7 +103,7 @@ const EnvironmentVariables = () => {
         {envVariables.length === 0 ? (
           <Text color="fg.muted">환경 변수가 없습니다.</Text>
         ) : (
-          <Table.Root variant="simple">
+          <Table.Root variant="outline">
             <Table.Header>
               <Table.Row>
                 <Table.ColumnHeader width="20%">키</Table.ColumnHeader>

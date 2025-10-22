@@ -162,7 +162,6 @@ services:
     build:
       context: ./frontend/app
       dockerfile: Dockerfile
-      target: production
       args:
         - VITE_API_URL=${VITE_API_URL}
     container_name: ${PROJECT_NAME}-frontend-prod
