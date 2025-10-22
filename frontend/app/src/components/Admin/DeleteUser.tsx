@@ -70,8 +70,8 @@ const DeleteUser = ({ id }: { id: string }) => {
           <DialogBody>
             <Text mb={4}>
               이 사용자와 연결된 모든 항목도{" "}
-              <strong>영구적으로 삭제됩니다.</strong> 계속 진행하시겠습니까? 이 작업은
-              되돌릴 수 없습니다.
+              <strong>영구적으로 삭제됩니다.</strong> 계속 진행하시겠습니까? 이
+              작업은 되돌릴 수 없습니다.
             </Text>
           </DialogBody>
 

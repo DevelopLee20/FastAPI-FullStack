@@ -61,9 +61,7 @@ class EnvVariableService:
             return []
 
         return (
-            self.db.query(EnvVariable)
-            .filter(EnvVariable.key.in_(runtime_keys))
-            .all()
+            self.db.query(EnvVariable).filter(EnvVariable.key.in_(runtime_keys)).all()
         )
 
     def create(self, env_create: EnvVariableCreate) -> EnvVariable:

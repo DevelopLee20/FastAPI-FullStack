@@ -88,9 +88,7 @@ function UsersTable() {
                 {user.email}
               </Table.Cell>
               <Table.Cell>{(user as any).username}</Table.Cell>
-              <Table.Cell>
-                {user.is_superuser ? "관리자" : "사용자"}
-              </Table.Cell>
+              <Table.Cell>{user.is_superuser ? "관리자" : "사용자"}</Table.Cell>
               <Table.Cell>{user.is_active ? "활성" : "비활성"}</Table.Cell>
               <Table.Cell>
                 <UserActionsMenu

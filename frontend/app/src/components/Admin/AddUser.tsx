@@ -95,9 +95,7 @@ const AddUser = () => {
             <DialogTitle>사용자 추가</DialogTitle>
           </DialogHeader>
           <DialogBody>
-            <Text mb={4}>
-              새 사용자를 등록하려면 아래 양식을 작성해주세요.
-            </Text>
+            <Text mb={4}>새 사용자를 등록하려면 아래 양식을 작성해주세요.</Text>
             <VStack gap={4}>
               <Field
                 required
@@ -108,7 +106,10 @@ const AddUser = () => {
                 <Input
                   {...register("username", {
                     required: "사용자명을 입력해주세요",
-                    minLength: { value: 3, message: "최소 3자 이상 입력해주세요" },
+                    minLength: {
+                      value: 3,
+                      message: "최소 3자 이상 입력해주세요",
+                    },
                   })}
                   placeholder="사용자명"
                   type="text"

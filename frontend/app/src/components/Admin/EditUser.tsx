@@ -104,7 +104,10 @@ const EditUser = ({ user }: EditUserProps) => {
               >
                 <Input
                   {...register("username", {
-                    minLength: { value: 3, message: "최소 3자 이상 입력해주세요" },
+                    minLength: {
+                      value: 3,
+                      message: "최소 3자 이상 입력해주세요",
+                    },
                   })}
                   placeholder="사용자명"
                   type="text"

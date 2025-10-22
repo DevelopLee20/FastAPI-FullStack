@@ -101,13 +101,17 @@ class RuntimeEnv:
 
             RuntimeEnv._sync_ran = True
         except Exception as exc:  # pragma: no cover - defensive
-            _logger.error("Failed to ensure core environment sync: %s", exc, exc_info=True)
+            _logger.error(
+                "Failed to ensure core environment sync: %s", exc, exc_info=True
+            )
         finally:
             if session is not None:
                 session.close()
 
     @staticmethod
-    def _with_cache(callback: Callable[[EnvCacheService], Optional[str]]) -> Optional[str]:
+    def _with_cache(
+        callback: Callable[[EnvCacheService], Optional[str]],
+    ) -> Optional[str]:
         """
         Helper that instantiates the cache safely; returns None on failure.
         """
@@ -204,7 +208,9 @@ class RuntimeEnv:
         """
         Return the access token expiration window in minutes.
         """
-        fallback = default if default is not None else settings.ACCESS_TOKEN_EXPIRE_MINUTES
+        fallback = (
+            default if default is not None else settings.ACCESS_TOKEN_EXPIRE_MINUTES
+        )
         result = RuntimeEnv.get_env_value(
             "ACCESS_TOKEN_EXPIRE_MINUTES", default=fallback, cast=int
         )

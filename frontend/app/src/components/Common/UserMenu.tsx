@@ -21,7 +21,9 @@ const UserMenu = () => {
           <MenuTrigger asChild p={2}>
             <Button data-testid="user-menu" variant="solid" maxW="sm" truncate>
               <FaUserAstronaut fontSize="18" />
-              <Text>{(user as any)?.nickname || user?.username || "사용자"}</Text>
+              <Text>
+                {(user as any)?.nickname || user?.username || "사용자"}
+              </Text>
             </Button>
           </MenuTrigger>
 

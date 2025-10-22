@@ -13,11 +13,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useMemo, useState } from "react"
 
-import {
-  type ApiError,
-  EnvService,
-  type EnvVariable,
-} from "@/client"
+import { type ApiError, EnvService, type EnvVariable } from "@/client"
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
 
@@ -37,7 +33,11 @@ const EnvironmentVariables = () => {
   })
 
   const mutation = useMutation({
-    mutationFn: (payload: { key: string; value?: string; description?: string }) =>
+    mutationFn: (payload: {
+      key: string
+      value?: string
+      description?: string
+    }) =>
       EnvService.updateEnvVariable({
         key: payload.key,
         requestBody: {
@@ -74,7 +74,8 @@ const EnvironmentVariables = () => {
     mutation.mutate({
       key: editingKey,
       value: draftValue,
-      description: draftDescription.trim() === "" ? undefined : draftDescription,
+      description:
+        draftDescription.trim() === "" ? undefined : draftDescription,
     })
   }
 
@@ -94,7 +95,8 @@ const EnvironmentVariables = () => {
             환경 변수
           </Heading>
           <Text color="fg.muted">
-            PostgreSQL에 저장되고 Redis에 캐시된 런타임 환경 변수를 조회하고 수정하세요.
+            PostgreSQL에 저장되고 Redis에 캐시된 런타임 환경 변수를 조회하고
+            수정하세요.
           </Text>
         </Box>
 
@@ -122,7 +124,9 @@ const EnvironmentVariables = () => {
                       {isEditing ? (
                         <Textarea
                           value={draftValue}
-                          onChange={(event) => setDraftValue(event.target.value)}
+                          onChange={(event) =>
+                            setDraftValue(event.target.value)
+                          }
                           size="sm"
                         />
                       ) : (
@@ -139,7 +143,9 @@ const EnvironmentVariables = () => {
                           size="sm"
                         />
                       ) : (
-                        <Text color={envVar.description ? "inherit" : "fg.muted"}>
+                        <Text
+                          color={envVar.description ? "inherit" : "fg.muted"}
+                        >
                           {envVar.description || "—"}
                         </Text>
                       )}
